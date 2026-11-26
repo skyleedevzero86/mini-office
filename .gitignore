@@ -11,4 +11,5 @@ frontend/dist/
 *.tsbuildinfo
 
 *.yml
+backups/
 Samples/
