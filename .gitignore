@@ -13,3 +13,5 @@ frontend/dist/
 *.yml
 backups/
 Samples/
+!.github/
+!.github/workflows/*.yml
