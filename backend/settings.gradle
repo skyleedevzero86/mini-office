@@ -11,3 +11,4 @@ dependencyResolutionManagement {
 rootProject.name = 'content-meta-migration'
 
 include 'aibo-dependencies'
+include 'aibo-framework:aibo-common'
