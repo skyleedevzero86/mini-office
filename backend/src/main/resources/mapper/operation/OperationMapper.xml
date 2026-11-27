@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 배치 실행 기록·SLA·데이터 품질 (V8) -->
+<mapper namespace="com.sleekydz86.contentmeta.operation.infrastructure.OperationMapper">
+
+    <update id="callBatchRunStart" statementType="CALLABLE">
+        {call sp_batch_run_start(
+            #{jobName, mode=IN, jdbcType=VARCHAR},
+            #{worker, mode=IN, jdbcType=VARCHAR},
+            #{jobRunId, mode=OUT, jdbcType=BIGINT},
+            #{rtnCod, mode=OUT, jdbcType=INTEGER},
+            #{errMsg, mode=OUT, jdbcType=VARCHAR}
+        )}
+    </update>
+
+    <update id="callBatchRunFinish" statementType="CALLABLE">
+        {call sp_batch_run_finish(
+            #{jobRunId, mode=IN, jdbcType=BIGINT},
+            #{success, mode=IN, jdbcType=TINYINT},
+            #{processed, mode=IN, jdbcType=INTEGER},
+            #{error, mode=IN, jdbcType=VARCHAR},
+            #{slaBreached, mode=OUT, jdbcType=TINYINT}
+        )}
+    </update>
+
+    <update id="callRunQualityChecks" statementType="CALLABLE">
+        {call sp_run_quality_checks(
+            #{jobRunId, mode=IN, jdbcType=BIGINT},
+            #{failedRules, mode=OUT, jdbcType=INTEGER}
+        )}
+    </update>
+
+    <select id="findQualityResults" resultType="com.sleekydz86.contentmeta.operation.infrastructure.QualityResultRow">
+        SELECT d.rule_code, r.rule_name, r.severity, d.violation_count, d.threshold, d.result, d.sample_keys
+          FROM dq_result d
+          JOIN dq_rule r ON r.rule_code = d.rule_code
+         WHERE d.job_run_id = #{jobRunId}
+         ORDER BY d.rule_code
+    </select>
+
+    <select id="findBatchRuns" resultType="com.sleekydz86.contentmeta.operation.infrastructure.BatchRunRow">
+        SELECT job_run_id, job_name, status, started_at, finished_at, processed_count, error_message, sla_breached, worker
+          FROM batch_job_run
+        <where>
+            <if test="jobName != null and jobName != ''">job_name = #{jobName}</if>
+        </where>
+         ORDER BY job_run_id DESC
+         LIMIT #{limit}
+    </select>
+
+    <!-- 프로시저가 결과 집합을 돌려준다 -->
+    <select id="checkSlaFreshness" statementType="CALLABLE"
+            resultType="com.sleekydz86.contentmeta.operation.infrastructure.SlaFreshnessRow">
+        {call sp_check_sla_freshness()}
+    </select>
+</mapper>

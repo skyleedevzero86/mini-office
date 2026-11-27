@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 대시보드·통계·모니터링 화면용 집계 (V1, V3, V6, V8). 조회만 한다 -->
+<mapper namespace="com.sleekydz86.contentmeta.dashboard.infrastructure.DashboardMapper">
+
+    <!-- 첫 화면 수치: 신규 메타 규모, 외부 ID·한국어 연결 수, 레거시 행 수, 아직 반영하지 않은 변경 -->
+    <select id="findOverview" resultType="com.sleekydz86.contentmeta.dashboard.infrastructure.OverviewRow">
+        SELECT
+            (SELECT COUNT(*) FROM content_title WHERE status &lt;&gt; 'DELETED')                              AS total_titles,
+            (SELECT COUNT(*) FROM content_title WHERE status &lt;&gt; 'DELETED' AND title_type = 'MOVIE')    AS movie_count,
+            (SELECT COUNT(*) FROM content_title WHERE status &lt;&gt; 'DELETED' AND title_type = 'SERIES')   AS series_count,
+            (SELECT COUNT(*) FROM content_title WHERE status &lt;&gt; 'DELETED' AND is_animation = 1)        AS animation_count,
+            (SELECT COUNT(*) FROM content_title WHERE status = 'DELETED')                                    AS deleted_count,
+            (SELECT COUNT(*) FROM content_season)                                                            AS season_count,
+            (SELECT COUNT(*) FROM content_episode)                                                           AS episode_count,
+            (SELECT COUNT(*) FROM content_person)                                                            AS person_count,
+            (SELECT COUNT(*) FROM content_person WHERE name_only = 1)                                        AS name_only_person_count,
+            (SELECT COUNT(DISTINCT e.entity_id)
+               FROM content_external_id e
+               JOIN content_title t ON t.title_id = e.entity_id AND t.status &lt;&gt; 'DELETED'
+              WHERE e.entity_type = 'TITLE')                                                                 AS titles_with_external_id,
+            (SELECT COUNT(*)
+               FROM content_localization l
+               JOIN content_title t ON t.title_id = l.title_id AND t.status &lt;&gt; 'DELETED'
+              WHERE l.lang_code = 'ko')                                                                      AS titles_with_ko,
+            (SELECT COUNT(*) FROM movies) + (SELECT COUNT(*) FROM MergedTVShow) + (SELECT COUNT(*) FROM cartoon_video) AS legacy_rows,
+            (SELECT COUNT(*) FROM legacy_change_log WHERE applied_at IS NULL)                                AS pending_changes,
+            (SELECT MIN(changed_at) FROM legacy_change_log WHERE applied_at IS NULL)                         AS oldest_pending_change_at
+    </select>
+
+    <select id="countByType" resultType="com.sleekydz86.contentmeta.dashboard.infrastructure.LabelCount">
+        SELECT CASE WHEN is_animation = 1 THEN CONCAT(title_type, '_ANIMATION') ELSE title_type END AS label,
+               COUNT(*) AS cnt
+          FROM content_title
+         WHERE status &lt;&gt; 'DELETED'
+         GROUP BY label
+         ORDER BY cnt DESC, label
+    </select>
+
+    <select id="countByGenre" resultType="com.sleekydz86.contentmeta.dashboard.infrastructure.LabelCount">
+        SELECT g.name_ko AS label, COUNT(*) AS cnt
+          FROM content_title_genre tg
+          JOIN content_genre g ON g.genre_code = tg.genre_code
+          JOIN content_title t ON t.title_id = tg.title_id AND t.status &lt;&gt; 'DELETED'
+         GROUP BY g.genre_code, g.name_ko
+         ORDER BY cnt DESC, label
+         LIMIT #{limit}
+    </select>
+
+    <!-- 공개 연도별. 공개일이 없으면 '미상' -->
+    <select id="countByReleaseYear" resultType="com.sleekydz86.contentmeta.dashboard.infrastructure.LabelCount">
+        SELECT COALESCE(CAST(YEAR(release_date) AS CHAR), '미상') AS label, COUNT(*) AS cnt
+          FROM content_title
+         WHERE status &lt;&gt; 'DELETED'
+         GROUP BY label
+         ORDER BY label
+    </select>
+
+    <!-- 상태별 (원본에서 지워진 DELETED 포함) -->
+    <select id="countByStatus" resultType="com.sleekydz86.contentmeta.dashboard.infrastructure.LabelCount">
+        SELECT status AS label, COUNT(*) AS cnt
+          FROM content_title
+         GROUP BY status
+         ORDER BY cnt DESC, label
+    </select>
+
+    <!-- 제공처별 연결 수. 연결이 하나도 없는 제공처도 0으로 보여 준다 -->
+    <select id="countByProvider" resultType="com.sleekydz86.contentmeta.dashboard.infrastructure.LabelCount">
+        SELECT p.provider AS label, COUNT(e.external_id_seq) AS cnt
+          FROM (SELECT 'TMDB_MOVIE' AS provider UNION ALL SELECT 'TMDB_TV' UNION ALL SELECT 'TMDB_PERSON'
+                UNION ALL SELECT 'IMDB' UNION ALL SELECT 'KOBIS') p
+          LEFT JOIN content_external_id e ON e.provider = p.provider
+         GROUP BY p.provider
+         ORDER BY cnt DESC, label
+    </select>
+
+    <select id="countByLanguage" resultType="com.sleekydz86.contentmeta.dashboard.infrastructure.LabelCount">
+        SELECT lang_code AS label, COUNT(*) AS cnt
+          FROM content_localization
+         GROUP BY lang_code
+         ORDER BY cnt DESC, label
+    </select>
+
+    <!-- 가장 최근 사전 검증·백필 작업의 문제 유형별 건수 -->
+    <select id="countIssuesByType" resultType="com.sleekydz86.contentmeta.dashboard.infrastructure.LabelCount">
+        SELECT CONCAT(severity, ' ', issue_type) AS label, COUNT(*) AS cnt
+          FROM migration_issue
+         WHERE run_id = (SELECT MAX(run_id) FROM migration_issue)
+         GROUP BY severity, issue_type
+         ORDER BY severity, cnt DESC
+    </select>
+
+    <!-- 최근 N일(오늘 포함) 날짜·작업별 성공·실패·SLA 위반·평균 소요 시간 -->
+    <select id="findBatchTrend" resultType="com.sleekydz86.contentmeta.dashboard.infrastructure.BatchTrendRow">
+        SELECT DATE(started_at)                                                    AS run_date,
+               job_name,
+               SUM(status = 'SUCCESS')                                             AS success_count,
+               SUM(status = 'FAILED')                                              AS failed_count,
+               SUM(sla_breached)                                                   AS sla_breached_count,
+               ROUND(AVG(TIMESTAMPDIFF(MICROSECOND, started_at, finished_at)) / 1000) AS avg_duration_ms
+          FROM batch_job_run
+         WHERE started_at &gt;= CURRENT_DATE - INTERVAL (#{days} - 1) DAY
+         GROUP BY DATE(started_at), job_name
+         ORDER BY run_date, job_name
+    </select>
+
+    <select id="findLatestQualityJobRunId" resultType="long">
+        SELECT MAX(job_run_id) FROM dq_result
+    </select>
+</mapper>
