@@ -2,15 +2,13 @@ package com.sleekydz86.aibackoffice.gateway.security
 
 import com.sleekydz86.aibackoffice.common.BusinessException
 import com.sleekydz86.aibackoffice.common.ErrorCode
-import com.sleekydz86.aibackoffice.common.ErrorResponse
 import com.sleekydz86.aibackoffice.common.Permissions
 import com.sleekydz86.aibackoffice.gateway.config.GatewayProperties
+import com.sleekydz86.aibackoffice.gateway.error.GatewayErrors
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.convert.converter.Converter
-import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.HttpMethod
-import org.springframework.http.MediaType
 import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.ServerHttpSecurity
@@ -67,15 +65,8 @@ class GatewaySecurityConfiguration {
         }
         .build()
 
-    private fun writeError(exchange: ServerWebExchange, jsonMapper: JsonMapper, code: ErrorCode): Mono<Void> {
-        val response = exchange.response
-        response.statusCode = org.springframework.http.HttpStatusCode.valueOf(code.status)
-        response.headers.contentType = MediaType.APPLICATION_JSON
-        val traceId = exchange.request.headers.getFirst(com.sleekydz86.aibackoffice.common.Headers.TRACE_ID)
-        val bytes = jsonMapper.writeValueAsBytes(ErrorResponse(code.name, code.defaultMessage, traceId))
-        val buffer: DataBuffer = response.bufferFactory().wrap(bytes)
-        return response.writeWith(Mono.just(buffer))
-    }
+    private fun writeError(exchange: ServerWebExchange, jsonMapper: JsonMapper, code: ErrorCode): Mono<Void> =
+        GatewayErrors.write(exchange, jsonMapper, code)
 }
 
 class PermissionAuthoritiesConverter : Converter<Jwt, Mono<AbstractAuthenticationToken>> {
