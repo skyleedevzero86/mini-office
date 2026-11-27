@@ -1,0 +1,22 @@
+import { http } from '@/backoffice/platform'
+import type { Approval, ApprovalCreateCommand, AuditLog, AutomationCandidate, ToolPolicy, ToolPolicyCommand } from './types'
+
+const G = '/api/governance'
+
+export const governanceApi = {
+  toolPolicies: () => http.get<ToolPolicy[]>(`${G}/tool-policies`),
+  updateToolPolicy: (toolName: string, command: ToolPolicyCommand) =>
+    http.put<ToolPolicy>(`${G}/tool-policies/${encodeURIComponent(toolName)}`, command),
+
+  approval: (id: number) => http.get<Approval>(`${G}/approvals/${id}`),
+  pendingCount: async () => (await http.list<Approval>(`${G}/approvals`, { status: 'PENDING', _start: 0, _end: 1 })).total,
+  requestApproval: (command: ApprovalCreateCommand) => http.post<Approval>(`${G}/approvals`, command),
+  approve: (id: number, comment?: string) => http.post<Approval>(`${G}/approvals/${id}/approve`, { comment }),
+  reject: (id: number, comment: string) => http.post<Approval>(`${G}/approvals/${id}/reject`, { comment }),
+
+  auditTrace: async (traceId: string) =>
+    (await http.list<AuditLog>(`${G}/audit-logs`, { traceId, _start: 0, _end: 100, _sort: 'createdAt', _order: 'asc' })).data,
+  recentAgentRuns: async () =>
+    (await http.list<AuditLog>(`${G}/audit-logs`, { actorType: 'AGENT', _start: 0, _end: 5, _sort: 'createdAt', _order: 'desc' })).data,
+  automationCandidates: (days = 7, limit = 10) => http.get<AutomationCandidate[]>(`${G}/automation-candidates`, { days, limit }),
+}
