@@ -12,6 +12,7 @@ import com.sleekydz86.aibackoffice.framework.security.core.LoginUser
 import com.sleekydz86.aibackoffice.framework.security.core.TokenType
 import com.sleekydz86.aibackoffice.framework.web.core.list.ListQuery
 import com.sleekydz86.aibackoffice.governance.api.ApprovalCreateRequest
+import com.sleekydz86.aibackoffice.governance.api.ApprovalExecuteRequest
 import com.sleekydz86.aibackoffice.governance.domain.ApprovalRequest
 import com.sleekydz86.aibackoffice.governance.domain.ApprovalStatus
 import com.sleekydz86.aibackoffice.governance.domain.ToolPolicy
@@ -155,7 +156,7 @@ class ApprovalServiceTest {
 
         // then
         assertEquals("EXECUTED", view.status)
-        val request = argumentCaptor<com.sleekydz86.aibackoffice.governance.api.ApprovalExecuteRequest>()
+        val request = argumentCaptor<ApprovalExecuteRequest>()
         verify(executor).execute(eq("svc-token"), request.capture())
         assertEquals("approval:55", request.firstValue.idempotencyKey)
         assertEquals(10, request.firstValue.arguments["slotId"])
