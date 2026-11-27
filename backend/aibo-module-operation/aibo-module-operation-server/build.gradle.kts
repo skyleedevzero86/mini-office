@@ -8,6 +8,7 @@ dependencies {
     implementation(project(":aibo-module-governance:aibo-module-governance-api"))
     implementation(project(":aibo-framework:aibo-spring-boot-starter-audit"))
     implementation(project(":aibo-framework:aibo-spring-boot-starter-redis"))
+    implementation(project(":aibo-framework:aibo-spring-boot-starter-file"))
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
     implementation("org.flywaydb:flyway-mysql")

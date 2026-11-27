@@ -1,6 +1,7 @@
 package com.sleekydz86.aibackoffice.operation.infrastructure.persistence
 
 import com.sleekydz86.aibackoffice.operation.domain.Issue
+import com.sleekydz86.aibackoffice.operation.domain.IssueAttachment
 import com.sleekydz86.aibackoffice.operation.domain.IssueComment
 import com.sleekydz86.aibackoffice.operation.domain.IssueStatus
 import com.sleekydz86.aibackoffice.operation.domain.IssueType
@@ -29,6 +30,12 @@ interface IssueRepository : JpaRepository<Issue, Long>, JpaSpecificationExecutor
 
 interface IssueCommentRepository : JpaRepository<IssueComment, Long> {
     fun findByIssueIdOrderByCreatedAtAscIdAsc(issueId: Long): List<IssueComment>
+}
+
+interface IssueAttachmentRepository : JpaRepository<IssueAttachment, Long> {
+    fun findByIssueIdOrderByCreatedAtAscIdAsc(issueId: Long): List<IssueAttachment>
+
+    fun countByIssueId(issueId: Long): Long
 }
 
 object IssueSpecs {
