@@ -1,1 +1,13 @@
+pluginManagement {
+    includeBuild 'build-logic'
+}
+
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+    }
+}
+
 rootProject.name = 'content-meta-migration'
+
+include 'aibo-dependencies'
