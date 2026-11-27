@@ -34,6 +34,14 @@ interface ScheduleSlotRepository : JpaRepository<ScheduleSlot, Long>, JpaSpecifi
         endAt: LocalDateTime,
         excluded: SlotStatus,
     ): List<ScheduleSlot>
+
+    @Query(
+        "select count(s) from ScheduleSlot s where s.channelId in :channelIds and s.status <> :excluded " +
+            "and s.startAt >= :from and s.startAt < :to",
+    )
+    fun countStarting(channelIds: Collection<Long>, from: LocalDateTime, to: LocalDateTime, excluded: SlotStatus): Long
+
+    fun countByChannelIdInAndStatus(channelIds: Collection<Long>, status: SlotStatus): Long
 }
 
 object ScheduleSlotSpecs {

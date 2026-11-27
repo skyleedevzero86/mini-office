@@ -15,7 +15,7 @@ import com.sleekydz86.aibackoffice.operation.domain.ScheduleSlot
 import com.sleekydz86.aibackoffice.operation.domain.SlotCandidate
 import com.sleekydz86.aibackoffice.operation.domain.SlotStatus
 import com.sleekydz86.aibackoffice.operation.infrastructure.persistence.ChannelRepository
-import com.sleekydz86.aibackoffice.operation.infrastructure.persistence.ContentExposureReader
+import com.sleekydz86.aibackoffice.operation.infrastructure.persistence.ContentExposureStore
 import com.sleekydz86.aibackoffice.operation.infrastructure.persistence.ScheduleSlotRepository
 import com.sleekydz86.aibackoffice.operation.infrastructure.persistence.ScheduleSlotSpecs
 import java.time.Clock
@@ -32,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional
 class ScheduleService(
     private val channels: ChannelRepository,
     private val slots: ScheduleSlotRepository,
-    private val exposures: ContentExposureReader,
+    private val exposures: ContentExposureStore,
     private val idempotency: IdempotencyService,
     private val audit: AuditRecorder,
     private val clock: Clock,
@@ -99,7 +99,7 @@ class ScheduleService(
                 throw BusinessException(ErrorCode.VALIDATION_FAILED, "이미 지난 시각에는 편성할 수 없습니다.")
             }
             if (candidate.startAt.isBefore(now.plus(APPROVAL_WINDOW))) {
-                requireApprovedExecution(user, approvalId, "시작까지 두 시간이 안 남은 편성은 승인을 거쳐야 합니다.")
+                ApprovedExecution.require(user, approvalId, "시작까지 두 시간이 안 남은 편성은 승인을 거쳐야 합니다.")
             }
             val channel = lockChannel(found)
             rejectConflicts(findConflicts(channel, candidate, null))
@@ -134,7 +134,7 @@ class ScheduleService(
     fun publish(user: LoginUser, slotId: Long, approvalId: Long?, idempotencyKey: String?): ScheduleSlotView =
         idempotency.execute(user, idempotencyKey, "schedule.publish", mapOf("slotId" to slotId, "approvalId" to approvalId), ScheduleSlotView::class.java) {
             SecurityFrameworkUtils.requirePermission(user, Permissions.SCHEDULE_PUBLISH)
-            val approved = requireApprovedExecution(user, approvalId, "편성 게시는 승인을 거친 실행으로만 할 수 있습니다.")
+            val approved = ApprovedExecution.require(user, approvalId, "편성 게시는 승인을 거친 실행으로만 할 수 있습니다.")
             val slot = requireSlot(slotId)
             val channel = requireChannelById(slot.channelId)
             SecurityFrameworkUtils.requireChannel(user, channel.code)
@@ -167,7 +167,7 @@ class ScheduleService(
     fun cancel(user: LoginUser, slotId: Long, approvalId: Long?, idempotencyKey: String?): ScheduleSlotView =
         idempotency.execute(user, idempotencyKey, "schedule.cancel", mapOf("slotId" to slotId, "approvalId" to approvalId), ScheduleSlotView::class.java) {
             SecurityFrameworkUtils.requirePermission(user, Permissions.SCHEDULE_PUBLISH)
-            val approved = requireApprovedExecution(user, approvalId, "편성 취소는 승인을 거친 실행으로만 할 수 있습니다.")
+            val approved = ApprovedExecution.require(user, approvalId, "편성 취소는 승인을 거친 실행으로만 할 수 있습니다.")
             val slot = requireSlot(slotId)
             val channel = requireChannelById(slot.channelId)
             SecurityFrameworkUtils.requireChannel(user, channel.code)
@@ -232,16 +232,6 @@ class ScheduleService(
     private fun rejectConflicts(conflicts: List<ScheduleConflict>) {
         if (conflicts.isEmpty()) return
         throw BusinessException(ErrorCode.CONFLICT, conflicts.joinToString(" ") { it.message })
-    }
-
-    private fun requireApprovedExecution(user: LoginUser, approvalId: Long?, message: String): Long {
-        if (approvalId == null || approvalId <= 0) {
-            throw BusinessException(ErrorCode.APPROVAL_REQUIRED, "$message 승인 번호 헤더 X-Approval-Id 가 필요합니다.")
-        }
-        if (!user.service) {
-            throw BusinessException(ErrorCode.APPROVAL_REQUIRED, "$message 승인된 요청을 실행하는 서비스만 부를 수 있습니다.")
-        }
-        return approvalId
     }
 
     private fun lockChannel(channel: Channel): Channel =

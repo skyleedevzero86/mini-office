@@ -12,7 +12,7 @@ import com.sleekydz86.aibackoffice.operation.domain.Channel
 import com.sleekydz86.aibackoffice.operation.domain.ScheduleSlot
 import com.sleekydz86.aibackoffice.operation.domain.SlotStatus
 import com.sleekydz86.aibackoffice.operation.infrastructure.persistence.ChannelRepository
-import com.sleekydz86.aibackoffice.operation.infrastructure.persistence.ContentExposureReader
+import com.sleekydz86.aibackoffice.operation.infrastructure.persistence.ContentExposureStore
 import com.sleekydz86.aibackoffice.operation.infrastructure.persistence.IdempotencyStore
 import com.sleekydz86.aibackoffice.operation.infrastructure.persistence.ScheduleSlotRepository
 import java.time.Clock
@@ -40,7 +40,7 @@ class ScheduleServiceTest {
 
     private val channels = mock<ChannelRepository>()
     private val slots = mock<ScheduleSlotRepository>()
-    private val exposures = mock<ContentExposureReader>()
+    private val exposures = mock<ContentExposureStore>()
     private val audit = mock<AuditRecorder>()
     private val idempotency = IdempotencyService(mock<IdempotencyStore>(), JsonMapper.builder().build())
     private val service = ScheduleService(channels, slots, exposures, idempotency, audit, clock)
