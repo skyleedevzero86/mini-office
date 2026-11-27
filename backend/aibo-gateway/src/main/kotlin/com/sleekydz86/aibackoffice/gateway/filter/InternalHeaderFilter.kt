@@ -2,8 +2,8 @@ package com.sleekydz86.aibackoffice.gateway.filter
 
 import com.sleekydz86.aibackoffice.common.Headers
 import com.sleekydz86.aibackoffice.gateway.config.GatewayProperties
+import com.sleekydz86.aibackoffice.gateway.error.GatewayTraceIds
 import java.net.URLEncoder
-import java.util.UUID
 import org.slf4j.LoggerFactory
 import org.springframework.cloud.gateway.filter.GatewayFilterChain
 import org.springframework.cloud.gateway.filter.GlobalFilter
@@ -24,7 +24,7 @@ class InternalHeaderFilter(private val properties: GatewayProperties) : GlobalFi
 
     override fun filter(exchange: ServerWebExchange, chain: GatewayFilterChain): Mono<Void> {
         val route = exchange.getAttribute<Route>(ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR)
-        val traceId = exchange.request.headers.getFirst(Headers.TRACE_ID) ?: UUID.randomUUID().toString().replace("-", "")
+        val traceId = GatewayTraceIds.of(exchange)
         val toContentMeta = route?.id == properties.contentMetaRouteId
         return ReactiveSecurityContextHolder.getContext()
             .mapNotNull { it.authentication?.principal as? Jwt }
