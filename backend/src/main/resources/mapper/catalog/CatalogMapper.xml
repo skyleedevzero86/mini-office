@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 신규 콘텐츠 메타 조회와 등록·수정·삭제 프로시저 (V1, V9) -->
+<mapper namespace="com.sleekydz86.contentmeta.catalog.infrastructure.CatalogMapper">
+
+    <select id="findTitle" resultType="com.sleekydz86.contentmeta.catalog.infrastructure.TitleRow">
+        SELECT title_id, title_type, original_title, original_language, release_date, runtime_min, status,
+               is_animation AS animation, popularity, vote_average, vote_count, poster_path, meta_version
+          FROM content_title
+         WHERE title_id = #{titleId}
+           AND status &lt;&gt; 'DELETED'
+    </select>
+
+    <!-- 요청 언어 제목이 없으면 원제를 보여 준다 -->
+    <select id="searchTitles" resultType="com.sleekydz86.contentmeta.catalog.infrastructure.TitleSummaryRow">
+        SELECT t.title_id, t.title_type, COALESCE(l.local_title, t.original_title) AS display_title,
+               t.original_title, t.release_date, t.status
+          FROM content_title t
+          LEFT JOIN content_localization l ON l.title_id = t.title_id AND l.lang_code = #{lang}
+         WHERE t.status &lt;&gt; 'DELETED'
+        <if test="titleType != null and titleType != ''">
+           AND t.title_type = #{titleType}
+        </if>
+        <if test="query != null and query != ''">
+           AND (t.original_title LIKE CONCAT('%', #{query}, '%')
+                OR EXISTS (SELECT 1 FROM content_localization q
+                            WHERE q.title_id = t.title_id AND q.local_title LIKE CONCAT('%', #{query}, '%')))
+        </if>
+         ORDER BY t.release_date DESC, t.title_id DESC
+         LIMIT #{limit}
+    </select>
+
+    <!-- 목록 화면 검색 조건 (pageTitles와 countTitles가 같이 쓴다) -->
+    <sql id="titleListWhere">
+         WHERE t.status &lt;&gt; 'DELETED'
+        <if test="titleType != null">
+           AND t.title_type = #{titleType}
+        </if>
+        <if test="status != null">
+           AND t.status = #{status}
+        </if>
+        <if test="animation != null">
+           AND t.is_animation = #{animation}
+        </if>
+        <if test="genre != null">
+           AND EXISTS (SELECT 1 FROM content_title_genre fg WHERE fg.title_id = t.title_id AND fg.genre_code = #{genre})
+        </if>
+        <if test="query != null">
+           AND (t.original_title LIKE CONCAT('%', #{query}, '%')
+                OR EXISTS (SELECT 1 FROM content_localization q
+                            WHERE q.title_id = t.title_id AND q.local_title LIKE CONCAT('%', #{query}, '%')))
+        </if>
+    </sql>
+
+    <!-- 목록 화면: 정렬은 TitleSort 이름만 받아 아래에서 고른다 (사용자 값을 정렬절에 그대로 넣지 않는다) -->
+    <select id="pageTitles" resultType="com.sleekydz86.contentmeta.catalog.infrastructure.TitleListRow">
+        SELECT t.title_id, t.title_type, COALESCE(l.local_title, t.original_title) AS display_title,
+               t.original_title, t.release_date, t.status, t.is_animation AS animation, t.vote_average, t.poster_path,
+               (SELECT COUNT(*) FROM content_season s WHERE s.title_id = t.title_id) AS season_count,
+               (SELECT GROUP_CONCAT(e.provider ORDER BY e.provider)
+                  FROM content_external_id e
+                 WHERE e.entity_type = 'TITLE' AND e.entity_id = t.title_id) AS providers,
+               (SELECT GROUP_CONCAT(g.name_ko ORDER BY g.genre_code)
+                  FROM content_title_genre tg
+                  JOIN content_genre g ON g.genre_code = tg.genre_code
+                 WHERE tg.title_id = t.title_id) AS genres
+          FROM content_title t
+          LEFT JOIN content_localization l ON l.title_id = t.title_id AND l.lang_code = #{lang}
+        <include refid="titleListWhere"/>
+        <choose>
+            <when test="sort == 'RELEASE_ASC'">
+         ORDER BY t.release_date IS NULL, t.release_date, t.title_id
+            </when>
+            <when test="sort == 'TITLE_ASC'">
+         ORDER BY display_title, t.title_id
+            </when>
+            <when test="sort == 'RATING_DESC'">
+         ORDER BY t.vote_average IS NULL, t.vote_average DESC, t.title_id DESC
+            </when>
+            <when test="sort == 'UPDATED_DESC'">
+         ORDER BY t.updated_at DESC, t.title_id DESC
+            </when>
+            <otherwise>
+         ORDER BY t.release_date DESC, t.title_id DESC
+            </otherwise>
+        </choose>
+         LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countTitles" resultType="long">
+        SELECT COUNT(*)
+          FROM content_title t
+        <include refid="titleListWhere"/>
+    </select>
+
+    <!-- 장르 필터 목록: 장르마다 (삭제되지 않은) 작품 수 -->
+    <select id="findGenreCodes" resultType="com.sleekydz86.contentmeta.catalog.infrastructure.GenreRow">
+        SELECT g.genre_code, g.name_ko,
+               (SELECT COUNT(*)
+                  FROM content_title_genre tg
+                  JOIN content_title t ON t.title_id = tg.title_id AND t.status &lt;&gt; 'DELETED'
+                 WHERE tg.genre_code = g.genre_code) AS title_count
+          FROM content_genre g
+         ORDER BY g.name_ko
+    </select>
+
+    <select id="findLocalizations" resultType="com.sleekydz86.contentmeta.catalog.infrastructure.LocalizationRow">
+        SELECT lang_code, local_title, overview, source
+          FROM content_localization
+         WHERE title_id = #{titleId}
+         ORDER BY lang_code
+    </select>
+
+    <select id="findExternalIds" resultType="com.sleekydz86.contentmeta.catalog.infrastructure.ExternalIdRow">
+        SELECT provider, external_id, match_method, verified
+          FROM content_external_id
+         WHERE entity_type = #{entityType} AND entity_id = #{entityId}
+         ORDER BY provider
+    </select>
+
+    <select id="findTitleIdByExternalId" resultType="long">
+        SELECT e.entity_id
+          FROM content_external_id e
+          JOIN content_title t ON t.title_id = e.entity_id AND t.status &lt;&gt; 'DELETED'
+         WHERE e.entity_type = 'TITLE' AND e.provider = #{provider} AND e.external_id = #{externalId}
+    </select>
+
+    <select id="findRegions" resultType="com.sleekydz86.contentmeta.catalog.infrastructure.RegionRow">
+        SELECT region_code, release_date, age_rating, source
+          FROM content_title_region
+         WHERE title_id = #{titleId}
+         ORDER BY region_code
+    </select>
+
+    <select id="findGenres" resultType="string">
+        SELECT genre_code FROM content_title_genre WHERE title_id = #{titleId} ORDER BY genre_code
+    </select>
+
+    <select id="findCountries" resultType="string">
+        SELECT country_code FROM content_title_country WHERE title_id = #{titleId} ORDER BY country_code
+    </select>
+
+    <select id="findSeasons" resultType="com.sleekydz86.contentmeta.catalog.infrastructure.SeasonRow">
+        SELECT s.season_id, s.season_no, s.season_name, s.air_date, s.episode_count,
+               (SELECT COUNT(*) FROM content_episode e WHERE e.season_id = s.season_id) AS loaded_episodes
+          FROM content_season s
+         WHERE s.title_id = #{titleId}
+         ORDER BY s.season_no
+    </select>
+
+    <select id="findCredits" resultType="com.sleekydz86.contentmeta.catalog.infrastructure.CreditRow">
+        SELECT p.person_id, p.person_name, c.role_type, c.character_name, c.credit_order, p.name_only
+          FROM content_credit c
+          JOIN content_person p ON p.person_id = c.person_id
+         WHERE c.title_id = #{titleId}
+         ORDER BY FIELD(c.role_type, 'DIRECTOR', 'CREATOR', 'WRITER', 'CAST'), c.credit_order
+    </select>
+
+    <update id="externalIdCud" statementType="CALLABLE">
+        {call sp_external_id_cud(
+            #{operation, mode=IN, jdbcType=CHAR},
+            #{worker, mode=IN, jdbcType=VARCHAR},
+            #{workip, mode=IN, jdbcType=VARCHAR},
+            #{entityType, mode=IN, jdbcType=VARCHAR},
+            #{entityId, mode=IN, jdbcType=BIGINT},
+            #{provider, mode=IN, jdbcType=VARCHAR},
+            #{externalId, mode=IN, jdbcType=VARCHAR},
+            #{rtnCod, mode=INOUT, jdbcType=VARCHAR},
+            #{errMsg, mode=INOUT, jdbcType=VARCHAR}
+        )}
+    </update>
+
+    <update id="localizationCud" statementType="CALLABLE">
+        {call sp_localization_cud(
+            #{operation, mode=IN, jdbcType=CHAR},
+            #{worker, mode=IN, jdbcType=VARCHAR},
+            #{workip, mode=IN, jdbcType=VARCHAR},
+            #{titleId, mode=IN, jdbcType=BIGINT},
+            #{langCode, mode=IN, jdbcType=VARCHAR},
+            #{localTitle, mode=IN, jdbcType=VARCHAR},
+            #{overview, mode=IN, jdbcType=LONGVARCHAR},
+            #{rtnCod, mode=INOUT, jdbcType=VARCHAR},
+            #{errMsg, mode=INOUT, jdbcType=VARCHAR}
+        )}
+    </update>
+</mapper>

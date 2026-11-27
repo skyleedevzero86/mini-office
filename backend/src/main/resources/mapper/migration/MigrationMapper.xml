@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 레거시 → 신규 이관 작업과 프로시저 호출 (V3~V7) -->
+<mapper namespace="com.sleekydz86.contentmeta.migration.infrastructure.MigrationMapper">
+
+    <sql id="runColumns">
+        run_id, mode, status, description, batch_size, last_movie_seq, last_tv_seq, last_cartoon_seq,
+        batch_count, attempt_count, error_count, info_count, upserted_titles, upserted_credits, upserted_episodes,
+        error_message, created_at, started_at, finished_at
+    </sql>
+
+    <insert id="insertRun" useGeneratedKeys="true" keyProperty="runId" keyColumn="run_id">
+        INSERT INTO migration_run (mode, description, batch_size)
+        VALUES (#{mode}, #{description}, #{batchSize})
+    </insert>
+
+    <select id="findRun" resultType="com.sleekydz86.contentmeta.migration.infrastructure.MigrationRunRow">
+        SELECT <include refid="runColumns"/>
+          FROM migration_run
+         WHERE run_id = #{runId}
+    </select>
+
+    <select id="findRuns" resultType="com.sleekydz86.contentmeta.migration.infrastructure.MigrationRunRow">
+        SELECT <include refid="runColumns"/>
+          FROM migration_run
+         ORDER BY run_id DESC
+         LIMIT #{limit}
+    </select>
+
+    <select id="findLatestSyncRunId" resultType="long">
+        SELECT MAX(run_id) FROM migration_run WHERE mode = 'SYNC'
+    </select>
+
+    <select id="findIssues" resultType="com.sleekydz86.contentmeta.migration.infrastructure.IssueRow">
+        SELECT issue_id, source_table, source_key, issue_type, severity, message
+          FROM migration_issue
+         WHERE run_id = #{runId}
+        <if test="severity != null and severity != ''">
+           AND severity = #{severity}
+        </if>
+         ORDER BY issue_id
+         LIMIT #{limit}
+    </select>
+
+    <select id="summarizeIssues" resultType="com.sleekydz86.contentmeta.migration.infrastructure.IssueSummaryRow">
+        SELECT source_table, issue_type, severity, COUNT(*) AS cnt
+          FROM migration_issue
+         WHERE run_id = #{runId}
+         GROUP BY source_table, issue_type, severity
+         ORDER BY source_table, severity, issue_type
+    </select>
+
+    <select id="findVerifyTables" resultType="com.sleekydz86.contentmeta.migration.domain.VerifyTableRow">
+        SELECT source_table, source_count, target_count, missing_count, mismatch_count, orphan_count
+          FROM migration_verify
+         WHERE run_id = #{runId}
+         ORDER BY source_table
+    </select>
+
+    <!-- 가장 최근에 끝난 대조 작업의 합계 (읽기 전환 판단) -->
+    <select id="findLatestVerify" resultType="com.sleekydz86.contentmeta.migration.infrastructure.LatestVerifyRow">
+        SELECT r.run_id, r.finished_at, TIMESTAMPDIFF(MINUTE, r.finished_at, CURRENT_TIMESTAMP(3)) AS age_minutes,
+               SUM(v.missing_count) AS missing, SUM(v.mismatch_count) AS mismatch, SUM(v.orphan_count) AS orphan
+          FROM migration_run r
+          JOIN migration_verify v ON v.run_id = r.run_id
+         WHERE r.run_id = (SELECT MAX(run_id) FROM migration_run WHERE mode = 'VERIFY' AND finished_at IS NOT NULL)
+         GROUP BY r.run_id, r.finished_at
+    </select>
+
+    <update id="callValidate" statementType="CALLABLE">
+        {call sp_validate_legacy_migration(
+            #{runId, mode=IN, jdbcType=BIGINT},
+            #{errorCount, mode=OUT, jdbcType=INTEGER},
+            #{infoCount, mode=OUT, jdbcType=INTEGER}
+        )}
+    </update>
+
+    <update id="callBackfillChunk" statementType="CALLABLE">
+        {call sp_backfill_legacy_chunk(
+            #{runId, mode=IN, jdbcType=BIGINT},
+            #{done, mode=OUT, jdbcType=TINYINT},
+            #{titles, mode=OUT, jdbcType=INTEGER},
+            #{errors, mode=OUT, jdbcType=INTEGER}
+        )}
+    </update>
+
+    <update id="callSync" statementType="CALLABLE">
+        {call sp_sync_legacy_changes(
+            #{runId, mode=IN, jdbcType=BIGINT},
+            #{batchSize, mode=IN, jdbcType=INTEGER},
+            #{changes, mode=OUT, jdbcType=INTEGER},
+            #{titles, mode=OUT, jdbcType=INTEGER},
+            #{deleted, mode=OUT, jdbcType=INTEGER},
+            #{errors, mode=OUT, jdbcType=INTEGER}
+        )}
+    </update>
+
+    <update id="callVerify" statementType="CALLABLE">
+        {call sp_verify_legacy_migration(
+            #{runId, mode=IN, jdbcType=BIGINT},
+            #{missing, mode=OUT, jdbcType=INTEGER},
+            #{mismatch, mode=OUT, jdbcType=INTEGER},
+            #{orphan, mode=OUT, jdbcType=INTEGER}
+        )}
+    </update>
+</mapper>
