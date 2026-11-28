@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
     implementation(project(":aibo-framework:aibo-spring-boot-starter-security"))
+    implementation(project(":aibo-framework:aibo-spring-boot-starter-redis"))
     implementation("org.springframework.ai:spring-ai-client-chat")
     implementation("io.modelcontextprotocol.sdk:mcp")
     implementation("org.springframework.ai:spring-ai-starter-model-openai")
@@ -15,4 +16,7 @@ dependencies {
     implementation("org.flywaydb:flyway-mysql")
     runtimeOnly("com.mysql:mysql-connector-j")
     testImplementation("org.springframework.boot:spring-boot-starter-security-test")
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
+    testImplementation("org.testcontainers:testcontainers-mysql")
 }
