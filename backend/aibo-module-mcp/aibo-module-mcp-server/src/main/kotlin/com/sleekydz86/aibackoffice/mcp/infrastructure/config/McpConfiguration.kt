@@ -18,6 +18,9 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory
 data class McpProperties(
     val authUrl: String = "",
     val governanceUrl: String = "",
+    val operationUrl: String = "",
+    val contentMetaUrl: String = "",
+    val contentMetaAdminToken: String = "",
     val clientId: String = "mcp",
     val clientSecret: String = "",
     val endpoint: String = "/mcp",

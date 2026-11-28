@@ -3,6 +3,8 @@ package com.sleekydz86.aibackoffice.mcp.application.tool
 import com.sleekydz86.aibackoffice.common.BusinessException
 import com.sleekydz86.aibackoffice.common.ErrorCode
 import com.sleekydz86.aibackoffice.framework.security.core.LoginUser
+import java.time.OffsetDateTime
+import java.time.format.DateTimeParseException
 import kotlin.math.min
 
 data class ToolDefinition(
@@ -29,7 +31,7 @@ interface McpToolHandler {
 
     val definition: ToolDefinition
 
-    fun scopeChannel(arguments: ToolArguments): String? = null
+    fun scopeChannel(call: ToolCall): String? = null
 
     fun precheck(call: ToolCall) {}
 
@@ -82,6 +84,31 @@ class ToolArguments(val values: Map<String, Any?>) {
     }
 
     fun channel(name: String = "channelCode"): String? = string(name)?.uppercase()
+
+    fun requireChannel(name: String = "channelCode"): String =
+        channel(name) ?: throw BusinessException(ErrorCode.VALIDATION_FAILED, "$name 값이 필요합니다.")
+
+    fun dateTime(name: String): String? = string(name)?.also {
+        try {
+            OffsetDateTime.parse(it)
+        } catch (exception: DateTimeParseException) {
+            throw BusinessException(ErrorCode.VALIDATION_FAILED, "$name 값은 2026-12-01T21:00:00+09:00 모양이어야 합니다.")
+        }
+    }
+
+    fun requireDateTime(name: String): String =
+        dateTime(name) ?: throw BusinessException(ErrorCode.VALIDATION_FAILED, "$name 값이 필요합니다.")
+
+    fun choice(name: String, allowed: Set<String>): String? = string(name)?.uppercase()?.also {
+        if (it !in allowed) throw BusinessException(ErrorCode.VALIDATION_FAILED, "$name 값은 ${allowed.sorted().joinToString(", ")} 중 하나여야 합니다.")
+    }
+
+    fun requireChoice(name: String, allowed: Set<String>): String =
+        choice(name, allowed) ?: throw BusinessException(ErrorCode.VALIDATION_FAILED, "$name 값이 필요합니다.")
+
+    fun requireText(name: String, maxLength: Int): String = requireString(name).also {
+        if (it.length > maxLength) throw BusinessException(ErrorCode.VALIDATION_FAILED, "$name 값은 ${maxLength}자를 넘을 수 없습니다.")
+    }
 
     companion object {
         val EMPTY = ToolArguments(emptyMap())
