@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<!-- 배치 실행 기록·SLA·데이터 품질 (V8) -->
+
 <mapper namespace="com.sleekydz86.contentmeta.operation.infrastructure.OperationMapper">
 
     <update id="callBatchRunStart" statementType="CALLABLE">
@@ -48,7 +48,6 @@
          LIMIT #{limit}
     </select>
 
-    <!-- 프로시저가 결과 집합을 돌려준다 -->
     <select id="checkSlaFreshness" statementType="CALLABLE"
             resultType="com.sleekydz86.contentmeta.operation.infrastructure.SlaFreshnessRow">
         {call sp_check_sla_freshness()}

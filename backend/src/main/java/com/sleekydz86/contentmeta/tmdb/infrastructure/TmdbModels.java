@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
-/** TMDB v3 응답 중 화면에 쓰는 필드만 받는다 (나머지는 무시) */
 public final class TmdbModels {
 
     private TmdbModels() {
@@ -34,7 +33,6 @@ public final class TmdbModels {
     public record Named(long id, String name) {
     }
 
-    /** GET /movie/{id}?append_to_response=credits */
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Movie(
             long id,
@@ -56,7 +54,6 @@ public final class TmdbModels {
     ) {
     }
 
-    /** GET /tv/{id}?append_to_response=credits,external_ids */
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Tv(
             long id,
@@ -82,7 +79,6 @@ public final class TmdbModels {
     ) {
     }
 
-    /** GET /search/movie, /search/tv 결과 한 건 (영화는 title·release_date, TV는 name·first_air_date) */
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record SearchItem(
             long id,

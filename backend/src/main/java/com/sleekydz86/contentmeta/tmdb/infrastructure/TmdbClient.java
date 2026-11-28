@@ -13,11 +13,6 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriBuilder;
 
-/**
- * TMDB v3 호출. 키는 두 형식을 받는다:
- * - v3 API 키(32자) → api_key 쿼리 파라미터
- * - v4 읽기 액세스 토큰(eyJ로 시작) → Authorization: Bearer 헤더
- */
 @Component
 public class TmdbClient {
 
@@ -52,7 +47,6 @@ public class TmdbClient {
                 .queryParam("append_to_response", "credits,external_ids")).build(tvId), TmdbModels.Tv.class, "tv " + tvId);
     }
 
-    /** type: movie | tv. year가 있으면 개봉(첫 방영) 연도로 좁힌다 */
     public TmdbModels.SearchPage search(String type, String query, Integer year, String language) {
         String yearParam = "tv".equals(type) ? "first_air_date_year" : "year";
         return get(uri -> {

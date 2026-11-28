@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Locale;
 import org.springframework.stereotype.Service;
 
-/** 신규 메타 조회. 읽기 원천이 NEW로 전환된 뒤에만 열린다 */
 @Service
 public class CatalogQueryService {
 
@@ -30,7 +29,6 @@ public class CatalogQueryService {
         return mapper.searchTitles(trimToNull(query), lang, upperOrNull(titleType), Math.max(1, Math.min(100, limit)));
     }
 
-    /** 목록 화면: 검색·필터·정렬·페이지. page는 0부터, size는 1~100 */
     public PageResponse<TitleListItem> page(String query, String lang, String titleType, String genre, String status,
                                             Boolean animation, TitleSort sort, int page, int size) {
         readSourceSwitch.requireNew();
@@ -46,7 +44,6 @@ public class CatalogQueryService {
         return PageResponse.of(items, page, pageSize, total);
     }
 
-    /** 장르 필터 목록 (작품 수 포함). 코드표라 읽기 원천과 상관없이 연다 */
     public List<GenreRow> genres() {
         return mapper.findGenreCodes();
     }
@@ -68,7 +65,6 @@ public class CatalogQueryService {
                 mapper.findCredits(titleId));
     }
 
-    /** 외부 표준 ID로 작품 찾기 (예: TMDB_TV 1399) */
     public TitleDetail byExternalId(String provider, String externalId) {
         readSourceSwitch.requireNew();
         Long titleId = mapper.findTitleIdByExternalId(provider.toUpperCase(Locale.ROOT), externalId.trim());

@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
-/** 운영 화면(대시보드·통계·모니터링) 조회. 읽기 원천과 상관없이 신규·레거시를 함께 본다 */
 @Service
 public class DashboardService {
 

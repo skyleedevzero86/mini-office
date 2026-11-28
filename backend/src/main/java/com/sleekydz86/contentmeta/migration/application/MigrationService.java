@@ -21,13 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
-/**
- * 레거시(movies, MergedTVShow, cartoon_video) → 콘텐츠 메타 무중단 이관.
- * 순서: 사전 검증 → 백필(묶음 단위) → 변경분 동기화(상시) → 대조 → 읽기 전환.
- *
- * 백필·동기화 프로시저가 묶음마다 직접 커밋·롤백한다. 그래서 이 서비스에는 @Transactional을 걸지 않는다.
- * 걸면 묶음 커밋이 바깥 트랜잭션에 묶여 잠금이 길어지고, 실패 기록(FAILED)까지 함께 롤백된다.
- */
 @Service
 public class MigrationService {
 
@@ -70,7 +63,6 @@ public class MigrationService {
         return mapper.summarizeIssues(runId);
     }
 
-    /** 레거시 전체를 검사해 오류·안내 건수를 남긴다. 데이터는 바꾸지 않는다 */
     public PrecheckResult precheck(long runId) {
         requireMode(runId, MigrationMode.BACKFILL);
         ValidateCall call = new ValidateCall(runId);
@@ -78,10 +70,6 @@ public class MigrationService {
         return new PrecheckResult(runId, orZero(call.getErrorCount()), orZero(call.getInfoCount()));
     }
 
-    /**
-     * 묶음을 maxChunks번까지 반영한다. 묶음 사이에 pauseMs만큼 쉬어 레거시 화면 트래픽에 틈을 준다.
-     * 실패하면 프로시저가 그 묶음만 롤백하고 작업을 FAILED로 남긴다. 다시 부르면 체크포인트에서 이어 간다.
-     */
     public BackfillResult backfill(long runId, int maxChunks, long pauseMs) {
         requireMode(runId, MigrationMode.BACKFILL);
         long started = System.currentTimeMillis();
@@ -105,7 +93,6 @@ public class MigrationService {
         return result;
     }
 
-    /** 쌓인 레거시 변경분을 한 묶음 반영한다 */
     public SyncResult sync(long runId, int batchSize) {
         requireMode(runId, MigrationMode.SYNC);
         SyncCall call = new SyncCall(runId, clamp(batchSize, 1, 5000));
@@ -113,7 +100,6 @@ public class MigrationService {
         return new SyncResult(runId, orZero(call.getChanges()), orZero(call.getTitles()), orZero(call.getDeleted()), orZero(call.getErrors()));
     }
 
-    /** 쌓인 변경이 없어질 때까지 동기화한다. 쓰는 SYNC 작업이 없으면 만든다 */
     public int syncAll(int batchSize) {
         Long latest = mapper.findLatestSyncRunId();
         long runId = latest != null ? latest : createRun(MigrationMode.SYNC, "상시 동기화", batchSize).getRunId();
@@ -126,7 +112,6 @@ public class MigrationService {
         return total;
     }
 
-    /** 원본과 신규를 건수·내용 지문으로 대조한다 */
     public VerifyResult verify(long runId) {
         requireMode(runId, MigrationMode.VERIFY);
         VerifyCall call = new VerifyCall(runId);

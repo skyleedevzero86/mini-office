@@ -2,7 +2,6 @@ package com.sleekydz86.contentmeta.catalog.infrastructure;
 
 import java.time.LocalDate;
 
-/** 시즌 (적재된 회차 수 포함) */
 public class SeasonRow {
 
     private long seasonId;

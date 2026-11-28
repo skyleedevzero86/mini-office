@@ -8,7 +8,6 @@ import com.sleekydz86.contentmeta.catalog.infrastructure.SeasonRow;
 import com.sleekydz86.contentmeta.catalog.infrastructure.TitleRow;
 import java.util.List;
 
-/** 작품 상세: 작품 + 외부 표준 ID + 언어별 제목 + 지역별 공개 + 시즌 + 출연 */
 public record TitleDetail(
         TitleRow title,
         List<ExternalIdRow> externalIds,

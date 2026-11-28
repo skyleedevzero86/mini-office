@@ -4,7 +4,6 @@ import com.sleekydz86.contentmeta.global.config.AppProperties;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-/** 정기 배치. app.batch.enabled=true일 때만 실제로 돈다 (기본 꺼짐, 운영 API로는 언제든 손으로 돌릴 수 있다) */
 @Component
 public class OperationScheduler {
 

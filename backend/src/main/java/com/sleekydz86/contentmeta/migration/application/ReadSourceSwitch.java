@@ -9,12 +9,6 @@ import com.sleekydz86.contentmeta.migration.infrastructure.MigrationMapper;
 import java.util.concurrent.atomic.AtomicReference;
 import org.springframework.stereotype.Component;
 
-/**
- * 읽기 전환 (무중단 전환의 마지막 전 단계).
- * NEW 전환은 가장 최근 대조가 2시간 안이고 누락·불일치·고아가 모두 0일 때만 허용한다.
- * LEGACY 되돌리기는 언제든 된다 (레거시 테이블은 전환 뒤에도 계속 쓰이고 동기화된다).
- * 서버 메모리 값이라 재시작하면 app.read-source 설정값으로 돌아간다. 여러 대면 설정값으로 맞춘다.
- */
 @Component
 public class ReadSourceSwitch {
 
@@ -38,7 +32,6 @@ public class ReadSourceSwitch {
         }
     }
 
-    /** 최근 대조 기준으로 지금 NEW 전환이 되는지 (대시보드 표시용) */
     public static boolean allows(LatestVerifyRow latest) {
         return latest != null && latest.getAgeMinutes() <= MAX_VERIFY_AGE_MINUTES && latest.isClean();
     }

@@ -1,6 +1,5 @@
 package com.sleekydz86.contentmeta.catalog.infrastructure;
 
-/** 장르 필터 항목 (작품 수 포함) */
 public class GenreRow {
 
     private String genreCode = "";

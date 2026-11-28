@@ -1,6 +1,5 @@
 package com.sleekydz86.contentmeta.operation.infrastructure;
 
-/** sp_batch_run_finish 호출 (OUT: SLA 위반 여부) */
 public class BatchRunFinishCall {
 
     private long jobRunId;

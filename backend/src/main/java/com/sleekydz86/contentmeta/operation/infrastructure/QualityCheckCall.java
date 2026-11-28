@@ -1,6 +1,5 @@
 package com.sleekydz86.contentmeta.operation.infrastructure;
 
-/** sp_run_quality_checks 호출 */
 public class QualityCheckCall {
 
     private long jobRunId;

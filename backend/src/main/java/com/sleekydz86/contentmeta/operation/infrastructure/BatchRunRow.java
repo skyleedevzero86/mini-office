@@ -2,7 +2,6 @@ package com.sleekydz86.contentmeta.operation.infrastructure;
 
 import java.time.LocalDateTime;
 
-/** 배치 실행 기록 한 건 */
 public class BatchRunRow {
 
     private long jobRunId;

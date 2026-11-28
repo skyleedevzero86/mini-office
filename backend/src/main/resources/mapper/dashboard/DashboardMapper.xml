@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<!-- 대시보드·통계·모니터링 화면용 집계 (V1, V3, V6, V8). 조회만 한다 -->
+
 <mapper namespace="com.sleekydz86.contentmeta.dashboard.infrastructure.DashboardMapper">
 
-    <!-- 첫 화면 수치: 신규 메타 규모, 외부 ID·한국어 연결 수, 레거시 행 수, 아직 반영하지 않은 변경 -->
     <select id="findOverview" resultType="com.sleekydz86.contentmeta.dashboard.infrastructure.OverviewRow">
         SELECT
             (SELECT COUNT(*) FROM content_title WHERE status &lt;&gt; 'DELETED')                              AS total_titles,
@@ -47,7 +46,6 @@
          LIMIT #{limit}
     </select>
 
-    <!-- 공개 연도별. 공개일이 없으면 '미상' -->
     <select id="countByReleaseYear" resultType="com.sleekydz86.contentmeta.dashboard.infrastructure.LabelCount">
         SELECT COALESCE(CAST(YEAR(release_date) AS CHAR), '미상') AS label, COUNT(*) AS cnt
           FROM content_title
@@ -56,7 +54,6 @@
          ORDER BY label
     </select>
 
-    <!-- 상태별 (원본에서 지워진 DELETED 포함) -->
     <select id="countByStatus" resultType="com.sleekydz86.contentmeta.dashboard.infrastructure.LabelCount">
         SELECT status AS label, COUNT(*) AS cnt
           FROM content_title
@@ -64,7 +61,6 @@
          ORDER BY cnt DESC, label
     </select>
 
-    <!-- 제공처별 연결 수. 연결이 하나도 없는 제공처도 0으로 보여 준다 -->
     <select id="countByProvider" resultType="com.sleekydz86.contentmeta.dashboard.infrastructure.LabelCount">
         SELECT p.provider AS label, COUNT(e.external_id_seq) AS cnt
           FROM (SELECT 'TMDB_MOVIE' AS provider UNION ALL SELECT 'TMDB_TV' UNION ALL SELECT 'TMDB_PERSON'
@@ -81,7 +77,6 @@
          ORDER BY cnt DESC, label
     </select>
 
-    <!-- 가장 최근 사전 검증·백필 작업의 문제 유형별 건수 -->
     <select id="countIssuesByType" resultType="com.sleekydz86.contentmeta.dashboard.infrastructure.LabelCount">
         SELECT CONCAT(severity, ' ', issue_type) AS label, COUNT(*) AS cnt
           FROM migration_issue
@@ -90,7 +85,6 @@
          ORDER BY severity, cnt DESC
     </select>
 
-    <!-- 최근 N일(오늘 포함) 날짜·작업별 성공·실패·SLA 위반·평균 소요 시간 -->
     <select id="findBatchTrend" resultType="com.sleekydz86.contentmeta.dashboard.infrastructure.BatchTrendRow">
         SELECT DATE(started_at)                                                    AS run_date,
                job_name,

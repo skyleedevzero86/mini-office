@@ -1,6 +1,5 @@
 package com.sleekydz86.contentmeta.migration.infrastructure;
 
-/** sp_sync_legacy_changes 호출 */
 public class SyncCall {
 
     private long runId;

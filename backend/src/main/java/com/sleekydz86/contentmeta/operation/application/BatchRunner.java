@@ -9,12 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-/**
- * 배치 한 번을 batch_job_run에 시작·종료로 남기며 돌린다.
- * - 같은 작업이 이미 실행 중이면 시작하지 않는다 (서버가 여러 대여도 한 번만 돈다)
- * - 실패는 기록하고 예외를 밖으로 던지지 않는다. 다음 주기에 다시 돈다 (프로시저가 묶음 단위로 롤백·재개를 맡는다)
- * - 허용 시간을 넘기면 SLA 위반으로 남기고 경고 로그를 낸다 (알림 연동 지점)
- */
 @Component
 public class BatchRunner {
 
@@ -28,7 +22,6 @@ public class BatchRunner {
         this.workerName = hostName();
     }
 
-    /** work: 실행 ID를 받아 처리 건수를 돌려준다 */
     public BatchOutcome run(BatchJob job, LongToIntFunction work) {
         BatchRunStartCall start = new BatchRunStartCall(job.name(), workerName);
         mapper.callBatchRunStart(start);

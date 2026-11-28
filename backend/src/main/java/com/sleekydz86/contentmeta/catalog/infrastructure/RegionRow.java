@@ -2,7 +2,6 @@ package com.sleekydz86.contentmeta.catalog.infrastructure;
 
 import java.time.LocalDate;
 
-/** 지역별 공개일·등급 */
 public class RegionRow {
 
     private String regionCode = "";

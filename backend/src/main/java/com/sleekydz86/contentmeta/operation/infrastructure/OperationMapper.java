@@ -4,7 +4,6 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-/** 배치 실행 기록·SLA·데이터 품질 (mapper/operation/OperationMapper.xml) */
 @Mapper
 public interface OperationMapper {
 

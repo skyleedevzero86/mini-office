@@ -5,7 +5,6 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-/** 레거시 → 신규 이관 작업과 프로시저 호출 (mapper/migration/MigrationMapper.xml) */
 @Mapper
 public interface MigrationMapper {
 

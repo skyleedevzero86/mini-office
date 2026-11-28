@@ -1,6 +1,5 @@
 package com.sleekydz86.contentmeta.migration.infrastructure;
 
-/** 검증 문제 한 건 (migration_issue) */
 public class IssueRow {
 
     private long issueId;

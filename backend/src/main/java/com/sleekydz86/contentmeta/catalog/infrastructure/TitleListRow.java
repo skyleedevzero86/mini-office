@@ -3,7 +3,6 @@ package com.sleekydz86.contentmeta.catalog.infrastructure;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/** 목록 화면 한 줄 (쉼표 문자열은 서비스가 배열로 푼다) */
 public class TitleListRow {
 
     private long titleId;
@@ -16,8 +15,8 @@ public class TitleListRow {
     private BigDecimal voteAverage;
     private String posterPath;
     private int seasonCount;
-    private String providers;    // 쉼표로 이은 외부 ID 제공처
-    private String genres;    // 쉼표로 이은 장르 한국어 이름
+    private String providers;
+    private String genres;
 
     public long getTitleId() {
         return titleId;

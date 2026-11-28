@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
-/** 목록 한 줄. 쉼표 문자열(제공처·장르)을 배열로 풀어 내보낸다 */
 public record TitleListItem(
         long titleId,
         String titleType,

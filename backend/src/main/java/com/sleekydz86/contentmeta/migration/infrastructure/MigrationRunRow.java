@@ -2,7 +2,6 @@ package com.sleekydz86.contentmeta.migration.infrastructure;
 
 import java.time.LocalDateTime;
 
-/** 이관 작업 한 건 (migration_run) */
 public class MigrationRunRow {
 
     private Long runId;

@@ -3,7 +3,6 @@ package com.sleekydz86.contentmeta.dashboard.application;
 import com.sleekydz86.contentmeta.dashboard.infrastructure.LabelCount;
 import java.util.List;
 
-/** 통계 화면 */
 public record CatalogStatistics(
         List<LabelCount> byType,
         List<LabelCount> byGenre,

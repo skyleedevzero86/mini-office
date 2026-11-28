@@ -2,7 +2,6 @@ package com.sleekydz86.contentmeta.dashboard.infrastructure;
 
 import java.time.LocalDateTime;
 
-/** 신규 메타·레거시·동기화 대기의 현재 수치 */
 public class OverviewRow {
 
     private int totalTitles;

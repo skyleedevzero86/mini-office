@@ -12,10 +12,6 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * 운영자의 외부 표준 ID 연결·현지화 편집. 커밋·롤백은 이 서비스 트랜잭션이 맡는다.
- * 프로시저가 rtn_cod=0을 돌려주면 verify()가 예외를 던져 롤백된다.
- */
 @Service
 public class CatalogEditService {
 
@@ -57,7 +53,6 @@ public class CatalogEditService {
         call.verify();
     }
 
-    // 프로시저 파라미터가 CHAR(1)이라 길이가 다른 값은 프로시저에 닿기 전에 막는다
     private static String operation(String value) {
         String operation = value == null ? "" : value.trim().toUpperCase(Locale.ROOT);
         if (!OPERATIONS.contains(operation)) {
