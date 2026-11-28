@@ -45,13 +45,12 @@ class ToolInvocationService(
         val decision = ToolAccess.decide(user, toolName, handler != null, policy)
         if (decision is AccessDecision.Denied) return ToolResult.fail(decision.code, decision.message)
         if (handler == null || policy == null) return ToolResult.fail(ErrorCode.NOT_FOUND, "없는 툴입니다: $toolName")
-        val args = ToolArguments(arguments)
-        val channel = handler.scopeChannel(args)
+        val call = ToolCall(user, ToolArguments(arguments), null, meta.idempotencyKey)
+        val channel = handler.scopeChannel(call)
         if (channel != null && !user.inChannel(channel)) {
             return ToolResult.fail(ErrorCode.SCOPE_DENIED, "담당하는 채널 밖의 대상입니다: $channel")
         }
-        if (policy.needsApproval) return requestApproval(user, handler, policy, args, channel, meta)
-        val call = ToolCall(user, args, null, meta.idempotencyKey)
+        if (policy.needsApproval) return requestApproval(user, handler, policy, call, channel, meta)
         handler.precheck(call)
         val output = handler.execute(call)
         return ToolResult.ok(output.data, output.untrusted, output.message)
@@ -61,11 +60,12 @@ class ToolInvocationService(
         user: LoginUser,
         handler: McpToolHandler,
         policy: ToolPolicy,
-        args: ToolArguments,
+        call: ToolCall,
         channel: String?,
         meta: CallMeta,
     ): ToolResult {
-        handler.precheck(ToolCall(user, args, null, null))
+        handler.precheck(call)
+        val args = call.arguments
         val approval = approvals.request(
             user,
             ApprovalDraft(

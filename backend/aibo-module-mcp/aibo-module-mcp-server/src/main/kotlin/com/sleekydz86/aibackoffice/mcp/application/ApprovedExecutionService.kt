@@ -85,12 +85,11 @@ class ApprovedExecutionService(
         if (!ToolAccess.permitted(user, policy.requiredPermission)) {
             return ToolResult.fail(ErrorCode.PERMISSION_DENIED, "요청자에게 지금은 ${policy.requiredPermission} 권한이 없습니다.")
         }
-        val args = ToolArguments(request.arguments)
-        val channel = handler.scopeChannel(args)
+        val call = ToolCall(user, ToolArguments(request.arguments), approvalId, idempotencyKey(approvalId))
+        val channel = handler.scopeChannel(call)
         if (channel != null && !user.inChannel(channel)) {
             return ToolResult.fail(ErrorCode.SCOPE_DENIED, "요청자가 지금은 $channel 채널을 맡고 있지 않습니다.")
         }
-        val call = ToolCall(user, args, approvalId, idempotencyKey(approvalId))
         handler.precheck(call)
         val output = handler.execute(call)
         return ToolResult.ok(output.data, output.untrusted, output.message).copy(approvalId = approvalId)

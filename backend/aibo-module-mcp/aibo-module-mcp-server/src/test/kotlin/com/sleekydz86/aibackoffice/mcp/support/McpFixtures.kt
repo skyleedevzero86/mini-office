@@ -45,7 +45,7 @@ object McpFixtures {
 
         override val definition = ToolDefinition(name, name, "$name 설명", mapOf("type" to "object"))
 
-        override fun scopeChannel(arguments: ToolArguments): String? = if (channelArgument) arguments.channel() else null
+        override fun scopeChannel(call: ToolCall): String? = if (channelArgument) call.arguments.channel() else null
 
         override fun precheck(call: ToolCall) {
             prechecks += call
