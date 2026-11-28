@@ -21,6 +21,7 @@ export interface RequestOptions {
   query?: Query
   body?: unknown
   rawBody?: string
+  formData?: FormData
   headers?: Record<string, string>
   idempotencyKey?: string
   signal?: AbortSignal
@@ -125,12 +126,12 @@ function statusMessage(status: number): string {
 export async function rawRequest<T>(method: string, path: string, options: RequestOptions = {}): Promise<RawResponse<T>> {
   const upper = method.toUpperCase()
   const key = WRITE_METHODS.has(upper) ? (options.idempotencyKey ?? newIdempotencyKey()) : undefined
-  const body = options.rawBody ?? (options.body === undefined ? undefined : JSON.stringify(options.body))
+  const body = options.formData ?? options.rawBody ?? (options.body === undefined ? undefined : JSON.stringify(options.body))
   const url = apiUrl(withQuery(path, options.query))
 
   const send = () => {
     const headers: Record<string, string> = { Accept: 'application/json', ...options.headers, ...authHeaders(upper, key) }
-    if (body !== undefined) headers['Content-Type'] = 'application/json'
+    if (body !== undefined && !options.formData) headers['Content-Type'] = 'application/json'
     return fetch(url, { method: upper, headers, body, signal: options.signal })
   }
 
@@ -159,6 +160,11 @@ export const http = {
   get: <T>(path: string, query?: Query, options?: RequestOptions) => request<T>('GET', path, { ...options, query }),
   post: <T>(path: string, body?: unknown, options?: RequestOptions) => request<T>('POST', path, { ...options, body }),
   put: <T>(path: string, body?: unknown, options?: RequestOptions) => request<T>('PUT', path, { ...options, body }),
+  upload: <T>(path: string, file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return request<T>('POST', path, { formData })
+  },
   list: async <T>(path: string, query?: Query): Promise<{ data: T[]; total: number }> => {
     const res = await rawRequest<T[]>('GET', path, { query })
     const total = Number(res.headers.get('x-total-count'))

@@ -67,6 +67,15 @@ export const argLabel: Record<string, string> = {
   provider: '제공처',
   externalId: '외부 ID',
   reason: '사유',
+  entityType: '대상 유형',
+  entityId: '대상 번호',
+  langCode: '언어',
+  localTitle: '제목',
+  overview: '줄거리',
+  operation: '작업',
+  slotStatus: '편성 상태',
+  slotTime: '편성 시간',
+  exposed: '노출',
 }
 
 export function label(map: Record<string, string>, code: string | null | undefined): string {

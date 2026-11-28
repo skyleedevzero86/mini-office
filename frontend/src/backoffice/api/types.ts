@@ -75,6 +75,7 @@ export interface Issue {
   description: string
   reporter: string
   assigneeId: number | null
+  resolution: string | null
   createdAt: string
   resolvedAt: string | null
 }
@@ -95,6 +96,18 @@ export interface IssueCreateCommand {
   contentId?: number | null
   title: string
   description: string
+}
+
+export interface Attachment {
+  id: number
+  issueId: number
+  fileName: string
+  contentType: string
+  sizeBytes: number
+  uploadedBy: string
+  createdAt: string
+  downloadUrl: string | null
+  downloadExpiresAt: string | null
 }
 
 export interface Exposure {
@@ -180,6 +193,26 @@ export interface AuditLog {
   reason: string | null
   approvalId: number | null
   createdAt: string
+}
+
+export interface AuditFilter {
+  actorType?: ActorType
+  actorId?: string
+  action?: string
+  resourceType?: string
+  resourceId?: string
+  result?: AuditResult
+  traceId?: string
+  from?: string
+  to?: string
+}
+
+export interface AuditExport {
+  fileName: string
+  rows: number
+  truncated: boolean
+  downloadUrl: string
+  expiresAt: string
 }
 
 export interface AutomationCandidate {
