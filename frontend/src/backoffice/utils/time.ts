@@ -30,3 +30,11 @@ export function weekStart(value: Dayjs): Dayjs {
   const offset = (d.day() + 6) % 7
   return d.subtract(offset, 'day')
 }
+
+export const DRAFT_LEAD_HOURS = 2
+
+export function earliestDraftStart(now: Dayjs = seoul()): Dayjs {
+  const lead = now.add(DRAFT_LEAD_HOURS, 'hour')
+  const rounded = lead.startOf('hour').add(Math.ceil(lead.minute() / 30) * 30, 'minute')
+  return rounded.isBefore(lead) ? rounded.add(30, 'minute') : rounded
+}

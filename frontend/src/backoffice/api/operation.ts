@@ -15,6 +15,7 @@ export interface SlotQuery {
 export interface ConflictQuery {
   channelCode: string
   contentId: number
+  contentRating?: string | null
   startAt: string
   endAt: string
   excludeSlotId?: number

@@ -38,6 +38,9 @@ export const auditResultColor: Record<string, string> = { SUCCESS: 'green', DENI
 
 export const titleTypeLabel: Record<string, string> = { MOVIE: '영화', SERIES: '시리즈' }
 
+export const ratingLabel: Record<string, string> = { ALL: '전체 관람가', '12': '12세 이상', '15': '15세 이상', '19': '19세 이상' }
+export const ratingCodes = ['ALL', '12', '15', '19'] as const
+
 export const toolLabel: Record<string, string> = {
   content_link_external_id: '외부 ID 연결',
   content_update_localization: '현지화 수정',
