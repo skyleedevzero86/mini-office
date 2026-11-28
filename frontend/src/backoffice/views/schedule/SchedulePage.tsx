@@ -79,7 +79,7 @@ export function SchedulePage() {
 
       {selected && <SlotDrawer slot={selected} onClose={() => setSelected(null)} />}
       {draftAt && channelCode && (
-        <DraftModal channelCode={channelCode} startAt={draftAt} onClose={() => setDraftAt(null)} onCreated={() => void slots.refetch()} />
+        <DraftModal channelCode={channelCode} minRatingAfter22={current?.minRatingAfter22} startAt={draftAt} onClose={() => setDraftAt(null)} onCreated={() => void slots.refetch()} />
       )}
     </Card>
   )

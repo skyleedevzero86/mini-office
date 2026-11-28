@@ -14,16 +14,18 @@ interface Props {
   readonly args: Record<string, unknown>
   readonly current?: Record<string, unknown>
   readonly title?: string
+  readonly reasonArg?: string
   readonly onClose: () => void
   readonly onRequested?: (approval: Approval) => void
 }
 
-export function RequestApprovalModal({ open, toolName, args, current, title, onClose, onRequested }: Props) {
+export function RequestApprovalModal({ open, toolName, args, current, title, reasonArg, onClose, onRequested }: Props) {
   const { message } = App.useApp()
   const [form] = Form.useForm<{ reason: string }>()
 
   const mutation = useMutation({
-    mutationFn: (reason: string) => governanceApi.requestApproval({ toolName, arguments: args, reason }),
+    mutationFn: (reason: string) =>
+      governanceApi.requestApproval({ toolName, arguments: reasonArg ? { ...args, [reasonArg]: reason } : args, reason }),
     onSuccess: (approval) => {
       message.success(
         <span>
