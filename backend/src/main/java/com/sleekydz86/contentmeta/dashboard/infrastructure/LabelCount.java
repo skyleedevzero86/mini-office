@@ -1,6 +1,5 @@
 package com.sleekydz86.contentmeta.dashboard.infrastructure;
 
-/** 이름별 건수 (차트용) */
 public class LabelCount {
 
     private String label = "";

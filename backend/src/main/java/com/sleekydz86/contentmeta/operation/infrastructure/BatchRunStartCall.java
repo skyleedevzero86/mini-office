@@ -1,6 +1,5 @@
 package com.sleekydz86.contentmeta.operation.infrastructure;
 
-/** sp_batch_run_start 호출 (겹쳐 돌면 rtnCod=0) */
 public class BatchRunStartCall {
 
     private String jobName;

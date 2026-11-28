@@ -4,7 +4,6 @@ import com.sleekydz86.contentmeta.migration.domain.ReadSource;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 
-/** application.yml의 app.* 설정 */
 @ConfigurationProperties("app")
 public record AppProperties(
         @DefaultValue("") String adminToken,
@@ -13,7 +12,6 @@ public record AppProperties(
         @DefaultValue Tmdb tmdb
 ) {
 
-    /** 정기 배치 (기본 꺼짐) */
     public record Batch(
             @DefaultValue("false") boolean enabled,
             @DefaultValue("60000") long syncDelayMs,
@@ -23,7 +21,6 @@ public record AppProperties(
     ) {
     }
 
-    /** TMDB API. apiKey가 비어 있으면 TMDB 보강을 쓰지 않는다 (v3 키 또는 v4 읽기 토큰) */
     public record Tmdb(
             @DefaultValue("") String apiKey,
             @DefaultValue("https://api.themoviedb.org/3") String baseUrl,

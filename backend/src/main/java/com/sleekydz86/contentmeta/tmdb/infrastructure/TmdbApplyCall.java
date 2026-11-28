@@ -2,7 +2,6 @@ package com.sleekydz86.contentmeta.tmdb.infrastructure;
 
 import com.sleekydz86.contentmeta.global.procedure.ProcedureCall;
 
-/** sp_title_tmdb_apply 호출 (OUT: 반영·건너뜀 내역) */
 public class TmdbApplyCall extends ProcedureCall {
 
     private String worker;

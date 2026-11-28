@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/** 운영 화면(대시보드·통계·모니터링) 조회 API */
 @RestController
 @RequestMapping("/api/admin/dashboard")
 public class DashboardController {
@@ -39,7 +38,6 @@ public class DashboardController {
         return dashboardService.batchTrend(days);
     }
 
-    /** 기록이 없으면 204 */
     @GetMapping("/verify/latest")
     public ResponseEntity<VerifyDetail> latestVerify() {
         return dashboardService.latestVerify().map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.noContent().build());

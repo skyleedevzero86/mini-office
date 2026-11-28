@@ -2,7 +2,6 @@ package com.sleekydz86.contentmeta.operation.infrastructure;
 
 import java.time.LocalDateTime;
 
-/** 작업별 SLA 신선도 (OK | STALE) */
 public class SlaFreshnessRow {
 
     private String jobName = "";

@@ -25,12 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
-/**
- * TMDB 보강.
- * - 조회: 작품에 연결된 TMDB_MOVIE·TMDB_TV ID로 포스터·줄거리·출연진을 실시간으로 가져와 보여 준다 (메모리 캐시)
- * - 검색: TMDB ID가 없는 작품의 연결 후보를 찾는다 (연결은 sp_external_id_cud로 운영자가 한다)
- * - 반영: 확인한 값 중 포스터·IMDB ID·영어 제목/줄거리를 sp_title_tmdb_apply로 신규 메타에 넣는다
- */
 @Service
 public class TmdbService {
 
@@ -56,7 +50,6 @@ public class TmdbService {
         this.transactionTemplate = new TransactionTemplate(transactionManager);
     }
 
-    /** 캐시 비우기 (테스트, 운영자가 TMDB 수정분을 바로 보고 싶을 때) */
     public void clearCache() {
         cache.clear();
     }
@@ -65,7 +58,6 @@ public class TmdbService {
         return new TmdbViews.Status(client.configured(), properties.language());
     }
 
-    /** 작품 상세의 TMDB 패널 */
     public TmdbViews.Title titleView(long titleId) {
         readSourceSwitch.requireNew();
         requireTitle(titleId);
@@ -82,7 +74,6 @@ public class TmdbService {
                 : toView(cached("movie:" + tmdbId + ":" + properties.language(), () -> client.movie(tmdbId, properties.language())));
     }
 
-    /** 연결 후보 검색. type: MOVIE | SERIES */
     public List<TmdbViews.Candidate> search(String type, String query, Integer year) {
         if (query == null || query.isBlank()) {
             throw new BusinessException(ErrorCode.INVALID_INPUT, "검색어가 필요합니다.");
@@ -103,10 +94,6 @@ public class TmdbService {
                 catalogMapper.findTitleIdByExternalId(provider, String.valueOf(item.id())))).toList();
     }
 
-    /**
-     * TMDB 값을 신규 메타에 반영한다 (포스터·IMDB·영어 현지화). 대조 지문 컬럼은 건드리지 않는다.
-     * TMDB 호출은 트랜잭션 밖에서 하고, 프로시저 호출만 트랜잭션으로 묶는다 (외부 응답을 기다리며 잠금을 잡지 않게)
-     */
     public TmdbViews.ApplyResult apply(long titleId) {
         requireTitle(titleId);
         ExternalIdRow link = tmdbLink(titleId)

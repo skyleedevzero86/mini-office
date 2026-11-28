@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** 외부 표준 ID 연결과 현지화 편집 (작업 로그는 X-Worker 헤더 이름으로 남는다) */
 @RestController
 @RequestMapping("/api/admin/catalog")
 public class CatalogAdminController {

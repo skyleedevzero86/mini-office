@@ -1,6 +1,5 @@
 package com.sleekydz86.contentmeta.migration.infrastructure;
 
-/** sp_verify_legacy_migration 호출 */
 public class VerifyCall {
 
     private long runId;

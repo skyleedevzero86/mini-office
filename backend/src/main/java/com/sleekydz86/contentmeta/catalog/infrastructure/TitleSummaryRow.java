@@ -2,7 +2,6 @@ package com.sleekydz86.contentmeta.catalog.infrastructure;
 
 import java.time.LocalDate;
 
-/** 검색 결과 한 줄 */
 public class TitleSummaryRow {
 
     private long titleId;

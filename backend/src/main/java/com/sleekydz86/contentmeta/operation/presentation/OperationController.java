@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/** 배치·SLA·품질 운영 API. 정기 배치를 손으로 한 번 돌릴 때도 쓴다 */
 @RestController
 @RequestMapping("/api/admin/operation")
 public class OperationController {

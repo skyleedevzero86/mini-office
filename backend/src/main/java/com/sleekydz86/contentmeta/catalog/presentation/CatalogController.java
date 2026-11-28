@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/** 신규 콘텐츠 메타 조회 API (읽기 원천이 NEW일 때만) */
 @RestController
 @RequestMapping("/api/catalog")
 public class CatalogController {
@@ -34,7 +33,6 @@ public class CatalogController {
         return catalogQueryService.search(query, lang, type, limit);
     }
 
-    /** 목록 화면용 페이지 조회 (page는 0부터) */
     @GetMapping("/titles/page")
     public PageResponse<TitleListItem> page(
             @RequestParam(required = false) String query,

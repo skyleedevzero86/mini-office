@@ -13,4 +13,8 @@ object RedisKeys {
         "$PREFIX:rate:$name:$subject:$windowStartEpochSecond"
 
     fun toolPolicy(toolName: String) = "$PREFIX:mcp:tool-policy:$toolName"
+
+    fun toolPolicies() = "$PREFIX:mcp:tool-policies"
+
+    fun approvalExecution(approvalId: Long) = "$PREFIX:mcp:approval-exec:$approvalId"
 }

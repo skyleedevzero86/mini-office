@@ -1,6 +1,5 @@
 package com.sleekydz86.contentmeta.migration.infrastructure;
 
-/** 원본 테이블·유형·심각도별 문제 건수 */
 public class IssueSummaryRow {
 
     private String sourceTable = "";

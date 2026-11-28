@@ -20,10 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * 이관 운영 API. AdminTokenInterceptor가 X-Admin-Token 헤더로 막는다.
- * 순서: POST /runs?mode=BACKFILL → /precheck → /backfill(done=true까지) → 동기화 → POST /runs?mode=VERIFY → /verify → /read-source?target=NEW
- */
 @RestController
 @RequestMapping("/api/admin/migration")
 public class MigrationController {

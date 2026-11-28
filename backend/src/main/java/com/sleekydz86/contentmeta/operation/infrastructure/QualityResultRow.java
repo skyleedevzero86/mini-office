@@ -1,6 +1,5 @@
 package com.sleekydz86.contentmeta.operation.infrastructure;
 
-/** 품질 규칙 하나의 점검 결과 */
 public class QualityResultRow {
 
     private String ruleCode = "";

@@ -1,6 +1,5 @@
 package com.sleekydz86.contentmeta.migration.infrastructure;
 
-/** sp_validate_legacy_migration 호출 (OUT: 오류·안내 건수) */
 public class ValidateCall {
 
     private long runId;

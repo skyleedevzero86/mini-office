@@ -4,7 +4,6 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-/** 대시보드·통계 화면용 집계 조회. 데이터는 바꾸지 않는다 (mapper/dashboard/DashboardMapper.xml) */
 @Mapper
 public interface DashboardMapper {
 

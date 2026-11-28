@@ -2,7 +2,6 @@ package com.sleekydz86.contentmeta.tmdb.application;
 
 import java.util.List;
 
-/** TMDB 화면용 응답 */
 public final class TmdbViews {
 
     private TmdbViews() {
@@ -14,10 +13,6 @@ public final class TmdbViews {
     public record Person(long tmdbPersonId, String name, String character, String profileUrl) {
     }
 
-    /**
-     * 작품 상세 화면의 TMDB 패널.
-     * configured=false면 키가 없는 것, linked=false면 작품에 TMDB ID가 없는 것 (둘 다 200으로 돌려주고 화면이 안내한다)
-     */
     public record Title(
             boolean configured,
             boolean linked,
@@ -57,7 +52,6 @@ public final class TmdbViews {
         }
     }
 
-    /** TMDB 검색 결과 한 건. 연결 후보로 보여 준다 */
     public record Candidate(
             String provider,
             long tmdbId,
@@ -71,7 +65,6 @@ public final class TmdbViews {
     ) {
     }
 
-    /** 반영 결과 (프로시저가 남긴 내역) */
     public record ApplyResult(long titleId, String note, String posterPath, String imdbId) {
     }
 }

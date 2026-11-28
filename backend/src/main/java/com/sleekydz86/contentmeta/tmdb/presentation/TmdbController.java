@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/** TMDB 보강 API. 조회는 카탈로그 쪽, 검색·반영은 운영 토큰이 필요한 admin 쪽 */
 @RestController
 public class TmdbController {
 

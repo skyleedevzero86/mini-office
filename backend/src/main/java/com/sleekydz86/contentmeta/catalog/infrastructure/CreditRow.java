@@ -1,6 +1,5 @@
 package com.sleekydz86.contentmeta.catalog.infrastructure;
 
-/** 출연·제작진 한 건 */
 public class CreditRow {
 
     private long personId;

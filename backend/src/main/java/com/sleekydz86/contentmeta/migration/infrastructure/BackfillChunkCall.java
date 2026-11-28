@@ -1,6 +1,5 @@
 package com.sleekydz86.contentmeta.migration.infrastructure;
 
-/** sp_backfill_legacy_chunk 호출 (OUT: 완료 여부·작품 수·오류 수) */
 public class BackfillChunkCall {
 
     private long runId;

@@ -1,6 +1,5 @@
 package com.sleekydz86.contentmeta.catalog.infrastructure;
 
-/** 목록 검색 조건. sort는 TitleSort 이름만 받는다 (XML이 화이트리스트로 정렬절을 고른다) */
 public class TitleSearchCondition {
 
     private String query;

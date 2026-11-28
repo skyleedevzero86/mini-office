@@ -4,7 +4,6 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-/** 신규 콘텐츠 메타 조회와 등록·수정·삭제 프로시저 (mapper/catalog/CatalogMapper.xml) */
 @Mapper
 public interface CatalogMapper {
 

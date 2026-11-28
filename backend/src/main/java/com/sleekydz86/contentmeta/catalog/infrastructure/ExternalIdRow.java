@@ -1,6 +1,5 @@
 package com.sleekydz86.contentmeta.catalog.infrastructure;
 
-/** 외부 표준 ID 한 건 */
 public class ExternalIdRow {
 
     private String provider = "";

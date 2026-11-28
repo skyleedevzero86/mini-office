@@ -1,6 +1,5 @@
 package com.sleekydz86.contentmeta.migration.domain;
 
-/** 원본 테이블별 대조 결과 (migration_verify) */
 public class VerifyTableRow {
 
     private String sourceTable = "";

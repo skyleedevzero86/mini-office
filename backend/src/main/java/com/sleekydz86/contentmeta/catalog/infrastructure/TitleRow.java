@@ -3,7 +3,6 @@ package com.sleekydz86.contentmeta.catalog.infrastructure;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/** 작품 한 건 (content_title) */
 public class TitleRow {
 
     private long titleId;
@@ -13,7 +12,7 @@ public class TitleRow {
     private LocalDate releaseDate;
     private Integer runtimeMin;
     private String status = "";
-    private boolean animation;    // is_animation을 별칭으로 받는다
+    private boolean animation;
     private BigDecimal popularity;
     private BigDecimal voteAverage;
     private Integer voteCount;

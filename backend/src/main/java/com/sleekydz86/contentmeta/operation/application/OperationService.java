@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-/** 정기 배치 세 가지를 BatchRunner로 감싸 돌린다. 스케줄러와 운영 API가 같은 메서드를 쓴다 */
 @Service
 public class OperationService {
 
@@ -34,12 +33,10 @@ public class OperationService {
         this.properties = properties;
     }
 
-    /** 레거시 변경분 동기화: 쌓인 변경이 없어질 때까지 */
     public BatchOutcome syncLegacyChanges() {
         return batchRunner.run(BatchJob.LEGACY_SYNC, jobRunId -> migrationService.syncAll(properties.batch().syncBatchSize()));
     }
 
-    /** 원본·신규 대조. 처리 건수로 누락+불일치+고아 수를 남긴다 */
     public BatchOutcome verify() {
         return batchRunner.run(BatchJob.LEGACY_VERIFY, jobRunId -> {
             MigrationRunRow run = migrationService.createRun(MigrationMode.VERIFY, "정기 대조 (batch " + jobRunId + ")", 500);
@@ -51,7 +48,6 @@ public class OperationService {
         });
     }
 
-    /** 데이터 품질 점검. 처리 건수로 FAIL 규칙 수를 남긴다 */
     public QualityReport qualityCheck() {
         AtomicInteger failed = new AtomicInteger();
         BatchOutcome outcome = batchRunner.run(BatchJob.QUALITY_CHECK, jobRunId -> {

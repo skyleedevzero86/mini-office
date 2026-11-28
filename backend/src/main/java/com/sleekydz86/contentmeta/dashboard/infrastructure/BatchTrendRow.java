@@ -2,7 +2,6 @@ package com.sleekydz86.contentmeta.dashboard.infrastructure;
 
 import java.time.LocalDate;
 
-/** 날짜·작업별 배치 실행 결과 */
 public class BatchTrendRow {
 
     private LocalDate runDate;

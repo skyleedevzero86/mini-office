@@ -2,7 +2,6 @@ package com.sleekydz86.contentmeta.catalog.infrastructure;
 
 import com.sleekydz86.contentmeta.global.procedure.ProcedureCall;
 
-/** sp_external_id_cud 호출 */
 public class ExternalIdCudCall extends ProcedureCall {
 
     private String operation;

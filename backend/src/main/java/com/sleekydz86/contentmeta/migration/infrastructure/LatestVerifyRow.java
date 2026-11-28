@@ -2,7 +2,6 @@ package com.sleekydz86.contentmeta.migration.infrastructure;
 
 import java.time.LocalDateTime;
 
-/** 가장 최근 대조 작업의 합계 (읽기 전환 판단) */
 public class LatestVerifyRow {
 
     private long runId;

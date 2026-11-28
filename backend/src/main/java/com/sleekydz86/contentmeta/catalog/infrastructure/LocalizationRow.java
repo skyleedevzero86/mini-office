@@ -1,6 +1,5 @@
 package com.sleekydz86.contentmeta.catalog.infrastructure;
 
-/** 언어별 제목·줄거리 */
 public class LocalizationRow {
 
     private String langCode = "";

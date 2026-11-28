@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<!-- 레거시 → 신규 이관 작업과 프로시저 호출 (V3~V7) -->
+
 <mapper namespace="com.sleekydz86.contentmeta.migration.infrastructure.MigrationMapper">
 
     <sql id="runColumns">
@@ -57,7 +57,6 @@
          ORDER BY source_table
     </select>
 
-    <!-- 가장 최근에 끝난 대조 작업의 합계 (읽기 전환 판단) -->
     <select id="findLatestVerify" resultType="com.sleekydz86.contentmeta.migration.infrastructure.LatestVerifyRow">
         SELECT r.run_id, r.finished_at, TIMESTAMPDIFF(MINUTE, r.finished_at, CURRENT_TIMESTAMP(3)) AS age_minutes,
                SUM(v.missing_count) AS missing, SUM(v.mismatch_count) AS mismatch, SUM(v.orphan_count) AS orphan
