@@ -174,12 +174,13 @@ class ExposureHideContentTool(private val clients: DownstreamClients) : BaseTool
         "contentId" to ToolSchemas.integer("작품 번호", 1),
         "issueId" to ToolSchemas.integer("근거가 된 이슈 번호", 1),
         "reason" to ToolSchemas.string("숨기는 이유. 승인자에게도 보인다", 2000),
-        required = listOf("contentId", "reason"),
+        required = listOf("contentId", "issueId", "reason"),
     ),
 ) {
     override fun precheck(call: ToolCall) {
         call.arguments.requireLong("contentId")
         call.arguments.requireText("reason", 2000)
+        clients.operation(call.user).issue(call.arguments.requireLong("issueId"))
     }
 
     override fun execute(call: ToolCall): ToolOutput {
@@ -187,7 +188,7 @@ class ExposureHideContentTool(private val clients: DownstreamClients) : BaseTool
         val contentId = args.requireLong("contentId")
         val exposure = clients.operation(call.user).hide(
             contentId,
-            ExposureHideRequest(args.long("issueId"), args.requireText("reason", 2000)),
+            ExposureHideRequest(args.requireLong("issueId"), args.requireText("reason", 2000)),
             call.approvalId,
             call.idempotencyKey,
         )

@@ -10,6 +10,7 @@ import com.sleekydz86.aibackoffice.mcp.infrastructure.client.ContentMetaApi
 import com.sleekydz86.aibackoffice.mcp.infrastructure.client.DownstreamClients
 import com.sleekydz86.aibackoffice.mcp.infrastructure.client.ExternalIdRequest
 import com.sleekydz86.aibackoffice.mcp.support.McpFixtures
+import com.sleekydz86.aibackoffice.operation.api.ExposureHideRequest
 import com.sleekydz86.aibackoffice.operation.api.OperationApi
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -144,6 +145,26 @@ class ToolBehaviorTest {
         // then
         assertEquals(ErrorCode.VALIDATION_FAILED, error.code)
         verify(content).externalId("worker", ExternalIdRequest("C", "TITLE", 3, "TMDB_TV", "1399"))
+    }
+
+    @Test
+    @DisplayName("작품 숨기기는 이슈 번호가 없거나 없는 이슈면 승인 요청 전에 거절하고 실행 때 이슈 번호를 넘긴다")
+    fun hideRequiresIssue() {
+        // given
+        val tool = ExposureHideContentTool(clients)
+        whenever(operation.issue(404)).thenThrow(BusinessException(ErrorCode.NOT_FOUND, "이슈를 찾을 수 없습니다."))
+        whenever(operation.issue(5)).thenReturn(mapOf("id" to 5L))
+
+        // when
+        val missing = assertThrows<BusinessException> { tool.precheck(call(mapOf("contentId" to 1, "reason" to "오류"))) }
+        val unknown = assertThrows<BusinessException> { tool.precheck(call(mapOf("contentId" to 1, "issueId" to 404, "reason" to "오류"))) }
+        tool.precheck(call(mapOf("contentId" to 1, "issueId" to 5, "reason" to "오류")))
+        tool.execute(call(mapOf("contentId" to 1, "issueId" to 5, "reason" to "오류"), 9))
+
+        // then
+        assertEquals(ErrorCode.VALIDATION_FAILED, missing.code)
+        assertEquals(ErrorCode.NOT_FOUND, unknown.code)
+        verify(operation).hide(eq(1L), eq(ExposureHideRequest(5L, "오류")), eq(9L), eq("approval:9"))
     }
 
     @Test
