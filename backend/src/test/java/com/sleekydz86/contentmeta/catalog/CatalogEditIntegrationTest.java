@@ -15,7 +15,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/** 운영자의 외부 표준 ID 연결과 현지화 편집 (sp_external_id_cud, sp_localization_cud) */
 class CatalogEditIntegrationTest extends IntegrationTestSupport {
 
     @Autowired

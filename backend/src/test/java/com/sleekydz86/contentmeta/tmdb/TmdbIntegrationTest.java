@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-/** TMDB 보강: 실제 TMDB 대신 가짜 응답으로 조회·반영과 "반영해도 대조가 깨지지 않는다"를 확인한다 */
 class TmdbIntegrationTest extends IntegrationTestSupport {
 
     private static final long GOT = 1399L;
@@ -123,7 +122,6 @@ class TmdbIntegrationTest extends IntegrationTestSupport {
                 "SELECT overview FROM content_localization WHERE title_id = ? AND lang_code = 'en'", String.class, titleId));
         assertEquals(1, count("SELECT COUNT(*) FROM work_log WHERE procedure_nm = 'sp_title_tmdb_apply'"));
 
-        // 레거시 행이 바뀌어 동기화돼도 (레거시 포스터가 비어 있으므로) TMDB 포스터는 남는다
         jdbc.update("UPDATE MergedTVShow SET overview = '레거시 줄거리 수정' WHERE tvNumber = '1399' AND mgSeq = 2");
         migrationService.syncAll(100);
         assertEquals("/ko-poster.jpg", jdbc.queryForObject("SELECT poster_path FROM content_title WHERE title_id = ?", String.class, titleId));

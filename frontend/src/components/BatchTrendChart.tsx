@@ -3,7 +3,6 @@ import type { BatchTrendRow } from '@/api/types'
 import { jobLabel } from '@/lib/labels'
 import { CHART, ChartCard } from './charts'
 
-/** 날짜별 배치 성공·실패 (상태 색 + 범례 + 표 보기) */
 export function BatchTrendChart({ rows, days }: { rows: BatchTrendRow[]; days: number }) {
   const byDate = new Map<string, { date: string; 성공: number; 실패: number; SLA위반: number }>()
   for (let i = days - 1; i >= 0; i--) {

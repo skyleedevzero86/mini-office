@@ -42,6 +42,7 @@ export function ContentDetailPage() {
   if (detail.error) return <Alert type="error" message={errorMessage(detail.error)} />
   const d = detail.data
   const existing = (p: Provider) => d?.externalIds.find((x) => x.provider === p)
+  const openProviders = providers.filter((p) => !existing(p))
 
   const startSearch = () => {
     if (!d) return
@@ -103,13 +104,25 @@ export function ContentDetailPage() {
             onFinish={(v) => setTarget({ provider: v.provider, externalId: v.externalId.trim() })}
           >
             <Form.Item name="provider" rules={[{ required: true, message: '제공처' }]}>
-              <Select placeholder="제공처" style={{ width: 140 }} options={providers.map((p) => ({ value: p, label: p }))} />
+              <Select
+                placeholder={openProviders.length ? '제공처' : '모두 연결됨'}
+                disabled={!openProviders.length}
+                style={{ width: 140 }}
+                options={openProviders.map((p) => ({ value: p, label: p }))}
+              />
             </Form.Item>
             <Form.Item name="externalId" rules={[{ required: true, message: '외부 ID' }]}>
               <Input placeholder="외부 ID" style={{ width: 200 }} />
             </Form.Item>
-            <Button htmlType="submit">직접 연결 요청</Button>
+            <Button htmlType="submit" disabled={!openProviders.length}>
+              직접 연결 요청
+            </Button>
           </Form>
+        )}
+        {canWrite && (
+          <Typography.Paragraph type="secondary" style={{ marginTop: 8, marginBottom: 0 }}>
+            이미 연결된 외부 ID는 바꾸지 않습니다. 비어 있는 제공처만 연결을 요청할 수 있습니다.
+          </Typography.Paragraph>
         )}
       </Card>
 
@@ -154,6 +167,8 @@ export function ContentDetailPage() {
           locale={{ emptyText: search ? '후보가 없습니다' : '“원제·연도로 찾기”를 누릅니다' }}
           renderItem={(c) => {
             const linkedElsewhere = c.linkedTitleId !== null && c.linkedTitleId !== titleId
+            const linkedHere = c.linkedTitleId === titleId
+            const providerTaken = !linkedHere && Boolean(existing(c.provider))
             return (
               <List.Item
                 actions={
@@ -162,10 +177,10 @@ export function ContentDetailPage() {
                         <Button
                           key="link"
                           size="small"
-                          disabled={c.linkedTitleId === titleId}
+                          disabled={linkedHere || providerTaken || linkedElsewhere}
                           onClick={() => setTarget({ provider: c.provider, externalId: String(c.tmdbId) })}
                         >
-                          {c.linkedTitleId === titleId ? '연결됨' : '연결 요청'}
+                          {linkedHere ? '연결됨' : providerTaken ? '다른 ID 연결됨' : '연결 요청'}
                         </Button>,
                       ]
                     : []
@@ -211,14 +226,11 @@ export function ContentDetailPage() {
           toolName="content_link_external_id"
           title="외부 ID 연결 승인 요청"
           args={{
-            titleId,
             entityType: 'TITLE',
             entityId: titleId,
             provider: target.provider,
             externalId: target.externalId,
-            operation: existing(target.provider) ? 'U' : 'C',
           }}
-          current={{ externalId: existing(target.provider)?.externalId ?? null }}
           onClose={() => setTarget(null)}
         />
       )}

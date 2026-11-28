@@ -1,7 +1,6 @@
 import type { ApiErrorBody } from './types'
 import { settings } from '@/lib/settings'
 
-/** 백엔드 오류 응답(code·message·detail)을 그대로 담는다 */
 export class ApiError extends Error {
   readonly status: number
   readonly code: string

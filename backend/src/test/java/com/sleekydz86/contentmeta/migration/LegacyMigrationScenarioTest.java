@@ -23,7 +23,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/** 무중단 이관 전 과정: 사전 검증 → 백필 → 변경분 동기화 → 대조 → 읽기 전환 */
 class LegacyMigrationScenarioTest extends IntegrationTestSupport {
 
     @Autowired

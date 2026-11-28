@@ -1,4 +1,3 @@
-// 코드값 → 화면 이름
 
 export const titleTypeLabel: Record<string, string> = {
   MOVIE: '영화',
@@ -67,7 +66,6 @@ export const providerLabel: Record<string, string> = {
   KOBIS: 'KOBIS',
 }
 
-/** 외부 ID → 원천 사이트 주소 (확인용 링크) */
 export function providerLink(provider: string, id: string): string | null {
   switch (provider) {
     case 'TMDB_MOVIE': return `https://www.themoviedb.org/movie/${id}`

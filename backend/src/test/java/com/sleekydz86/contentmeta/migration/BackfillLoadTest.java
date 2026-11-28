@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** 구시스템 2만5천 건(영화 2만, TV 5천)을 묶음 1,000으로 백필하고 대조한다. 처리량은 로그로 남긴다 */
 class BackfillLoadTest extends IntegrationTestSupport {
 
     private static final Logger log = LoggerFactory.getLogger(BackfillLoadTest.class);

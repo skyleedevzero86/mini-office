@@ -1,11 +1,26 @@
 import { RobotOutlined } from '@ant-design/icons'
-import { ThemedLayout, ThemedTitle } from '@refinedev/antd'
+import { ThemedLayout } from '@refinedev/antd'
 import { useLogout } from '@refinedev/core'
 import { Button, Drawer, Layout, Space, Tag, Typography, theme } from 'antd'
-import { Outlet } from 'react-router'
+import { Link, Outlet } from 'react-router'
 import { ChatPanel } from '@/backoffice/components/chat/ChatPanel'
 import { usePermission } from '@/backoffice/platform'
+import { boPath } from '@/backoffice/routes'
 import { ChatDrawerProvider, useChatDrawer } from '@/backoffice/store/chatDrawer'
+
+function Title({ collapsed }: { collapsed: boolean }) {
+  const { token } = theme.useToken()
+  return (
+    <Link to={boPath('/')} aria-label="대시보드로 가기" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <RobotOutlined style={{ fontSize: 22, color: token.colorPrimary }} />
+      {!collapsed && (
+        <Typography.Title level={5} style={{ margin: 0, whiteSpace: 'nowrap' }}>
+          AI 백오피스
+        </Typography.Title>
+      )}
+    </Link>
+  )
+}
 
 function Header() {
   const { token } = theme.useToken()
@@ -62,7 +77,7 @@ export function AppLayout() {
     <ChatDrawerProvider>
       <ThemedLayout
         Header={Header}
-        Title={({ collapsed }) => <ThemedTitle collapsed={collapsed} text="AI 백오피스" icon={<RobotOutlined />} />}
+        Title={Title}
       >
         <Outlet />
       </ThemedLayout>

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { settings } from '@/lib/settings'
 
-/** 운영 토큰·작업자 이름 입력. 작업자 이름은 프로시저 작업 로그(work_log)에 남는다 */
 export function SettingsDialog({ onClose }: { onClose: (saved: boolean) => void }) {
   const [token, setToken] = useState(settings.adminToken())
   const [worker, setWorker] = useState(settings.worker())

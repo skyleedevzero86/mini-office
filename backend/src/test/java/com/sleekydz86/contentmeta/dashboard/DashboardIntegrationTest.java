@@ -21,7 +21,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/** 대시보드·통계 집계 (샘플 백필 뒤 기준) */
 class DashboardIntegrationTest extends IntegrationTestSupport {
 
     @Autowired

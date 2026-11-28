@@ -47,7 +47,7 @@ export function SlotDrawer({ slot, onClose }: Props) {
         </Space>
       )}
 
-      {tool && <RequestApprovalModal open toolName={tool} args={{ slotId: slot.id }} onClose={() => setTool(null)} />}
+      {tool && <RequestApprovalModal open toolName={tool} args={{ slotId: slot.id, channelCode: slot.channelCode }} onClose={() => setTool(null)} />}
     </Drawer>
   )
 }

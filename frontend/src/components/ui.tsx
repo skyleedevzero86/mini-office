@@ -45,7 +45,6 @@ export type Tone = 'good' | 'warn' | 'bad' | 'info' | 'plain'
 
 const toneIcon: Record<Tone, string> = { good: '✓', warn: '!', bad: '✕', info: 'i', plain: '' }
 
-/** 상태 배지: 색만으로 구분하지 않게 아이콘과 글자를 같이 쓴다 */
 export function Badge({ tone = 'plain', children }: { tone?: Tone; children: ReactNode }) {
   return (
     <span className={`badge ${tone === 'plain' ? '' : tone}`}>
@@ -79,7 +78,6 @@ export function Notice({ tone, title, children, actions }: { tone: 'info' | 'war
   )
 }
 
-/** API 오류를 사람이 읽을 안내로. 읽기 원천·토큰 문제는 해결 경로를 같이 보여 준다 */
 export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
   if (error instanceof ApiError) {
     if (error.code === 'M005') {

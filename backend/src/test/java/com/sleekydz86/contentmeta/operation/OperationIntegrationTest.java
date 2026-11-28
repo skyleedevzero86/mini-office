@@ -17,7 +17,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/** 배치 실행 기록·SLA·데이터 품질 */
 class OperationIntegrationTest extends IntegrationTestSupport {
 
     @Autowired
