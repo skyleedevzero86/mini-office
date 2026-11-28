@@ -4,7 +4,6 @@ import type { LabelCount } from '@/api/types'
 import { fmtNumber } from '@/lib/format'
 import { Card, Empty } from './ui'
 
-// 차트 색 (dataviz 기본 팔레트: 단일 계열 = 1번 파랑, 상태 = 성공 초록 / 실패 빨강)
 export const CHART = {
   series1: '#2a78d6',
   series2: '#eb6834',
@@ -17,7 +16,6 @@ export const CHART = {
 
 const axisTick = { fill: CHART.axis, fontSize: 12 }
 
-/** 차트 + 표 보기 전환 (색만으로 읽지 않아도 되게 숫자 표를 같이 둔다) */
 export function ChartCard({ title, sub, rows, columns, children, tall, autoHeight }: {
   title: string
   sub?: ReactNode
@@ -44,7 +42,6 @@ export function ChartCard({ title, sub, rows, columns, children, tall, autoHeigh
   )
 }
 
-/** 이름별 건수 가로 막대 (한 계열이라 범례 없이 제목이 계열 이름이다) */
 export function HBarCard({ title, sub, data, labelOf = (l) => l, tall, labelWidth = 120 }: {
   title: string
   sub?: ReactNode
@@ -72,7 +69,6 @@ export function HBarCard({ title, sub, data, labelOf = (l) => l, tall, labelWidt
   )
 }
 
-/** 연도처럼 순서가 있는 항목의 세로 막대 */
 export function VBarCard({ title, sub, data, highlight }: { title: string; sub?: ReactNode; data: LabelCount[]; highlight?: (label: string) => boolean }) {
   const rows = data.map((d) => ({ name: d.label, cnt: d.cnt }))
   return (

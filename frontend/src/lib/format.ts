@@ -7,10 +7,8 @@ export function fmtPercent(part: number, whole: number): string {
   return `${((part / whole) * 100).toFixed(1)}%`
 }
 
-/** 'YYYY-MM-DD' 그대로 (백엔드 LocalDate) */
 export const fmtDate = (value: string | null | undefined) => value ?? '-'
 
-/** LocalDateTime 'YYYY-MM-DDTHH:mm:ss.SSS' → 'MM-DD HH:mm:ss' */
 export function fmtDateTime(value: string | null | undefined): string {
   if (!value) return '-'
   const [date = '', time = ''] = value.split('T')
@@ -31,7 +29,6 @@ export function fmtMinutes(minutes: number | null | undefined): string {
   return `${Math.floor(minutes / 1440)}일`
 }
 
-/** TMDB 포스터 경로(/abc.jpg)면 이미지 주소로, 그 외(레거시 전체 주소)는 그대로 */
 export function posterUrl(path: string | null, width: 92 | 185 | 342 = 185): string | null {
   if (!path) return null
   if (path.startsWith('http')) return path

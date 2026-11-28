@@ -1,4 +1,3 @@
-// 백엔드 응답 타입 (Kotlin data class와 이름을 맞춘다. 날짜는 ISO 문자열로 온다)
 
 export type ReadSource = 'LEGACY' | 'NEW'
 export type MigrationMode = 'BACKFILL' | 'SYNC' | 'VERIFY'
@@ -22,7 +21,6 @@ export interface PageResponse<T> {
   totalPages: number
 }
 
-// ---- 카탈로그 ----
 export interface TitleListItem {
   titleId: number
   titleType: TitleType
@@ -126,7 +124,6 @@ export interface LocalizationCommand {
   overview: string | null
 }
 
-// ---- 이관 ----
 export interface MigrationRunRow {
   runId: number
   mode: MigrationMode
@@ -215,7 +212,6 @@ export interface LatestVerifyRow {
   orphan: number
 }
 
-// ---- 운영 ----
 export interface BatchOutcome {
   job: BatchJob
   jobRunId: number | null
@@ -264,7 +260,6 @@ export interface SlaFreshnessRow {
   freshness: 'OK' | 'STALE'
 }
 
-// ---- 대시보드 ----
 export interface OverviewCounts {
   totalTitles: number
   movieCount: number
@@ -325,7 +320,6 @@ export interface QualityDetail {
   rules: QualityResultRow[]
 }
 
-// ---- TMDB ----
 export interface TmdbStatus {
   configured: boolean
   language: string

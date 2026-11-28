@@ -17,7 +17,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/** 목록 화면용 페이지 조회 (샘플 백필 뒤: 작품 11편 = 영화 5 + 시리즈 6, 그중 애니메이션 3) */
 class CatalogPageIntegrationTest extends IntegrationTestSupport {
 
     @Autowired
@@ -48,7 +47,7 @@ class CatalogPageIntegrationTest extends IntegrationTestSupport {
         assertEquals(11, first.total());
         assertEquals(3, first.totalPages());
         assertEquals(4, first.items().size());
-        assertEquals("Broken Range", first.items().getFirst().originalTitle());   // 공개일 최신순
+        assertEquals("Broken Range", first.items().getFirst().originalTitle());
 
         PageResponse<TitleListItem> last = page(2, 4, null, null, null, null, TitleSort.RELEASE_DESC);
         assertEquals(3, last.items().size());
@@ -67,11 +66,11 @@ class CatalogPageIntegrationTest extends IntegrationTestSupport {
         assertEquals(5, all(null, "movie", null, null).total());
         assertEquals(3, all(null, "SERIES", null, true).total());
         assertEquals(7, all(null, null, "drama", null).total());
-        assertEquals(2, all("게임", null, null, null).total());   // 한국어 현지화 제목으로도 찾는다
+        assertEquals(2, all("게임", null, null, null).total());
 
         List<TitleListItem> byRating = page(0, 20, null, null, null, null, TitleSort.RATING_DESC).items();
         assertEquals("타오르는 여인의 초상", byRating.getFirst().originalTitle());
-        byRating.subList(byRating.size() - 3, byRating.size()).forEach(item -> assertNull(item.voteAverage()));   // 평점 없는 작품은 뒤로
+        byRating.subList(byRating.size() - 3, byRating.size()).forEach(item -> assertNull(item.voteAverage()));
 
         TitleListItem got = all("Game of Thrones", null, null, null).items().getFirst();
         assertEquals(List.of("TMDB_TV"), got.providers());

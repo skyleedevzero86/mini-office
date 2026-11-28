@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { NavLink, Outlet, useLocation } from 'react-router'
+import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { migrationApi, tmdbApi } from '@/api/endpoints'
 import { settings } from '@/lib/settings'
 import { Badge } from './ui'
@@ -42,13 +42,13 @@ export function Layout() {
   return (
     <div className="shell">
       <aside className="sidebar">
-        <div className="brand">
+        <Link to="/" className="brand" aria-label="첫 화면으로 가기">
           <div className="brand-mark">CM</div>
           <div>
             <div className="brand-name">Content Meta</div>
             <div className="brand-sub">영상 메타데이터 콘솔</div>
           </div>
-        </div>
+        </Link>
         <nav className="nav">
           {nav.map((g) => (
             <div key={g.group}>
